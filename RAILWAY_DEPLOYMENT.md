@@ -6,7 +6,8 @@ The root of this repository is the Vite Discover frontend. The Railway API servi
 - Builder: Dockerfile
 - Dockerfile path (repository-root deployment): `server/Dockerfile`
 - Health check path: `/health`
-- Required variable: `DATABASE_URL` (Railway PostgreSQL connection string)
+- Required variable: `DATABASE_URL` (Prisma Postgres pooled connection string for runtime queries)
+- Required variable: `DIRECT_URL` (Prisma Postgres direct connection string for Prisma schema push/migrations)
 - Required variable: `JWT_ACCESS_SECRET` (long random secret, at least 32 characters)
 - Optional variables: `NODE_ENV=production`, `CORS_ORIGINS` (comma-separated frontend origins), `PUBLIC_API_URL` (public API origin), `REQUIRE_VERIFIED_EMAIL=false`
 

@@ -8,7 +8,7 @@ RUN npm install
 
 COPY server/prisma ./prisma
 # Generate the Prisma client at build time without requiring Railway secrets in the build environment.
-RUN DATABASE_URL="postgresql://build:build@localhost:5432/build?schema=public" npx prisma generate
+RUN DATABASE_URL="postgresql://build:build@localhost:5432/build?schema=public" DIRECT_URL="postgresql://build:build@localhost:5432/build?schema=public" npx prisma generate
 COPY server/src ./src
 RUN mkdir -p uploads
 

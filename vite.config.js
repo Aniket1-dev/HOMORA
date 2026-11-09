@@ -1,3 +1,21 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-export default defineConfig({plugins:[react()],server:{proxy:{'/api':'http://localhost:4000','/uploads':'http://localhost:4000'}}});
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(projectRoot, 'src'),
+    },
+  },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:4000',
+      '/uploads': 'http://localhost:4000',
+    },
+  },
+});

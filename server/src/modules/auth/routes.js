@@ -1,0 +1,31 @@
+import { Router } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import crypto from 'node:crypto';
+import { z } from 'zod';
+import { prisma } from '../../db.js';
+import { requireAuth } from '../../middleware.js';
+const router=Router();
+const sign=(u)=>jwt.sign({sub:u.id,email:u.email,role:u.role},process.env.JWT_ACCESS_SECRET,{expiresIn:process.env.JWT_ACCESS_TTL||'20m'});
+const safe=(u)=>({id:u.id,email:u.email,full_name:u.name,display_name:u.name,name:u.name,phone:u.phone,city:u.city,organisation:u.organisation,occupation:u.occupation,role:u.role,status:u.status,email_verified:u.emailVerified,avatar_url:u.avatarUrl});
+router.post('/register',async(req,res,next)=>{try{
+ const body=z.object({email:z.string().email(),password:z.string().min(8),name:z.string().optional()}).parse(req.body);
+ const email=body.email.toLowerCase(); if(await prisma.user.findUnique({where:{email}})) return res.status(409).json({error:{message:'An account with this email already exists'}});
+ const user=await prisma.user.create({data:{email,passwordHash:await bcrypt.hash(body.password,12),name:body.name||null}});
+ const code=String(crypto.randomInt(100000,999999)); await prisma.emailCode.create({data:{email,codeHash:await bcrypt.hash(code,10),purpose:'verify',expiresAt:new Date(Date.now()+10*60*1000)}});
+ if(process.env.NODE_ENV!=='production') console.info(`[HOMORA DEV] Verification code for ${email}: ${code}`);
+ res.status(201).json({success:true,verification_required:true,message:process.env.NODE_ENV==='production'?'Verification code sent if email delivery is configured.':'Development verification code written to API logs.'});
+ }catch(e){next(e)}});
+router.post('/verify-otp',async(req,res,next)=>{try{
+ const {email,otpCode}=z.object({email:z.string().email(),otpCode:z.string().length(6)}).parse(req.body); const row=await prisma.emailCode.findFirst({where:{email:email.toLowerCase(),purpose:'verify',consumedAt:null,expiresAt:{gt:new Date()}},orderBy:{createdAt:'desc'}});
+ if(!row||!await bcrypt.compare(otpCode,row.codeHash)) return res.status(400).json({error:{message:'Invalid or expired verification code'}});
+ const user=await prisma.user.update({where:{email:email.toLowerCase()},data:{emailVerified:true}}); await prisma.emailCode.update({where:{id:row.id},data:{consumedAt:new Date()}}); const access_token=sign(user); res.json({access_token,user:safe(user)});
+ }catch(e){next(e)}});
+router.post('/resend-otp',async(req,res,next)=>{try{const email=z.string().email().parse(req.body.email).toLowerCase();const code=String(crypto.randomInt(100000,999999));await prisma.emailCode.create({data:{email,codeHash:await bcrypt.hash(code,10),purpose:'verify',expiresAt:new Date(Date.now()+10*60*1000)}});if(process.env.NODE_ENV!=='production')console.info(`[HOMORA DEV] Verification code for ${email}: ${code}`);res.json({success:true});}catch(e){next(e)}});
+router.post('/login',async(req,res,next)=>{try{const {email,password}=z.object({email:z.string().email(),password:z.string().min(1)}).parse(req.body);const user=await prisma.user.findUnique({where:{email:email.toLowerCase()}});if(!user||!await bcrypt.compare(password,user.passwordHash))return res.status(401).json({error:{message:'Invalid email or password'}});if(user.status!=='active')return res.status(403).json({error:{message:'This account is not active'}});if(!user.emailVerified&&process.env.REQUIRE_VERIFIED_EMAIL==='true')return res.status(403).json({error:{message:'Please verify your email before signing in'}});res.json({access_token:sign(user),user:safe(user)});}catch(e){next(e)}});
+router.get('/me',requireAuth,async(req,res,next)=>{try{const u=await prisma.user.findUnique({where:{id:req.auth.sub}});if(!u)return res.status(401).json({error:{message:'Account not found'}});res.json(safe(u));}catch(e){next(e)}});
+router.patch('/me',requireAuth,async(req,res,next)=>{try{const body=z.object({name:z.string().optional(),display_name:z.string().optional(),full_name:z.string().optional(),phone:z.string().optional(),city:z.string().optional(),organisation:z.string().optional(),occupation:z.string().optional(),avatarUrl:z.string().optional(),preferences:z.any().optional()}).parse(req.body);const data={...body,name:body.display_name||body.full_name||body.name};delete data.display_name;delete data.full_name;const u=await prisma.user.update({where:{id:req.auth.sub},data});res.json(safe(u));}catch(e){next(e)}});
+router.post('/logout',(_req,res)=>res.json({success:true}));
+router.post('/forgot-password',async(req,res)=>{const email=String(req.body.email||'').toLowerCase();if(email){const user=await prisma.user.findUnique({where:{email}});if(user){const code=String(crypto.randomInt(100000,999999));await prisma.emailCode.create({data:{email,codeHash:await bcrypt.hash(code,10),purpose:'reset',expiresAt:new Date(Date.now()+10*60*1000)}});if(process.env.NODE_ENV!=='production')console.info(`[HOMORA DEV] Password reset code for ${email}: ${code}`);}}res.json({success:true,message:'If the account exists, reset instructions will be sent.'});});
+router.post('/reset-password',async(req,res,next)=>{try{const {email,otpCode,newPassword}=z.object({email:z.string().email(),otpCode:z.string().length(6),newPassword:z.string().min(8)}).parse(req.body);const row=await prisma.emailCode.findFirst({where:{email:email.toLowerCase(),purpose:'reset',consumedAt:null,expiresAt:{gt:new Date()}},orderBy:{createdAt:'desc'}});if(!row||!await bcrypt.compare(otpCode,row.codeHash))return res.status(400).json({error:{message:'Invalid or expired reset code'}});await prisma.user.update({where:{email:email.toLowerCase()},data:{passwordHash:await bcrypt.hash(newPassword,12)}});await prisma.emailCode.update({where:{id:row.id},data:{consumedAt:new Date()}});res.json({success:true});}catch(e){next(e)}});
+export default router;

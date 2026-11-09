@@ -10,7 +10,7 @@ RUN npm install
 
 COPY server/prisma ./prisma
 # Prisma client generation does not need a live database during image build.
-RUN DATABASE_URL="postgresql://build:build@localhost:5432/build?schema=public" npx prisma generate
+RUN DATABASE_URL="postgresql://build:build@localhost:5432/build?schema=public" DIRECT_URL="postgresql://build:build@localhost:5432/build?schema=public" npx prisma generate
 
 COPY server/src ./src
 RUN mkdir -p uploads

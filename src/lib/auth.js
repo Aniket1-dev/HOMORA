@@ -23,8 +23,16 @@ export async function verifyTotpChallenge(factorId, code) {
   if (verifyError) throw verifyError;
 }
 
-export async function signUp(email, password) {
-  const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: redirectUrl('/') } });
+export async function signUp(email, password, fullName = '') {
+  const metadata = fullName.trim() ? { full_name: fullName.trim() } : {};
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: metadata,
+      emailRedirectTo: redirectUrl('/'),
+    },
+  });
   if (error) throw error;
 }
 

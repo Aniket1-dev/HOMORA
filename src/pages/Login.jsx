@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowRight, Eye, EyeOff, Home, Lock, Mail, Loader2 } from "lucide-react";
 import { signInWithPassword, signInWithGoogle } from "@/lib/auth";
 import MfaChallenge from "@/components/MfaChallenge";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,7 @@ export default function Login() {
 
   return (
     <AuthLayout
-      icon={HomeIcon}
+      icon={Home}
       title="Welcome back"
       subtitle="Log in to your HOMORA Discover account."
       footer={
@@ -155,8 +155,4 @@ export default function Login() {
     </AuthLayout>
   );
 }
-
-function HomeIcon(props) {
-  const { Home } = require("lucide-react");
-  return <Home {...props} />;
-}
+\n

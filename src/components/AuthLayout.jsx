@@ -10,7 +10,7 @@ function Wordmark({ light = false }) {
       <span className={`flex h-10 w-10 items-center justify-center rounded-[13px] ${light ? "bg-white text-[#783DF0]" : "bg-[#783DF0] text-white"}`}>
         <Home className="h-[19px] w-[19px]" strokeWidth={2.4} />
       </span>
-      <span className={`text-[23px] font-extrabold tracking-[-0.075em] ${light ? "text-white" : "text-[#211B35] dark:text-white"}`}>
+      <span className={`text-[23px] font-extrabold tracking-[-0.075em] ${light ? "text-white" : "text-[#211B35]"}`}>
         HOMORA<span className={light ? "text-[#CDBAFF]" : "text-[#783DF0]"}>.</span>
       </span>
     </div>
@@ -57,25 +57,25 @@ function LivingPreview() {
 
 export default function AuthLayout({ title, subtitle, footer, children }) {
   return (
-    <main className="min-h-screen bg-[#F4F1F7] p-0 dark:bg-[#100D17] lg:p-4 xl:p-5">
-      <div className="mx-auto grid min-h-screen max-w-[1460px] gap-0 bg-white dark:bg-[#15111D] lg:min-h-[calc(100vh-32px)] lg:grid-cols-[0.94fr_1.06fr] lg:gap-3 lg:rounded-[30px] lg:bg-transparent lg:p-2 xl:min-h-[calc(100vh-40px)]">
+    <main className="min-h-screen bg-[#F4F1F7] p-0 lg:p-4 xl:p-5" style={{ colorScheme: "light" }}>
+      <div className="mx-auto grid min-h-screen max-w-[1460px] gap-0 bg-white lg:min-h-[calc(100vh-32px)] lg:grid-cols-[0.94fr_1.06fr] lg:gap-3 lg:rounded-[30px] lg:bg-transparent lg:p-2 xl:min-h-[calc(100vh-40px)]">
         <LivingPreview />
 
-        <section className="flex min-h-screen items-center justify-center px-6 py-9 dark:bg-[#15111D] sm:px-10 lg:min-h-[720px] lg:rounded-[25px] lg:bg-white lg:px-12 xl:px-16 dark:lg:bg-[#15111D]">
+        <section className="flex min-h-screen items-center justify-center px-6 py-9 sm:px-10 lg:min-h-[720px] lg:rounded-[25px] lg:bg-white lg:px-12 xl:px-16">
           <div className="w-full max-w-[408px]">
             <div className="mb-10 lg:hidden">
               <Wordmark />
             </div>
 
             <div className="mb-8">
-              <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8D829F] dark:text-[#A99EBB]">
+              <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#756B84]">
                 YOUR HOMORA ACCOUNT
               </p>
-              <h1 className="text-[35px] font-semibold leading-[1.1] tracking-[-0.06em] text-[#211B35] dark:text-[#F5F1FA] sm:text-[39px]">
+              <h1 className="text-[35px] font-semibold leading-[1.1] tracking-[-0.06em] text-[#211B35] sm:text-[39px]">
                 {title}
               </h1>
               {subtitle && (
-                <p className="mt-3 max-w-[370px] text-[14px] leading-6 text-[#777084] dark:text-[#AAA2B8]">
+                <p className="mt-3 max-w-[370px] text-[14px] leading-6 text-[#665D75]">
                   {subtitle}
                 </p>
               )}
@@ -84,12 +84,12 @@ export default function AuthLayout({ title, subtitle, footer, children }) {
             {children}
 
             {footer && (
-              <div className="mt-7 text-center text-[13px] leading-6 text-[#777084] dark:text-[#AAA2B8]">
+              <div className="mt-7 text-center text-[13px] leading-6 text-[#777084]">
                 {footer}
               </div>
             )}
 
-            <div className="mt-9 flex items-center justify-center gap-2 text-[10px] font-medium tracking-[0.08em] text-[#AAA4B2] dark:text-[#797187]">
+            <div className="mt-9 flex items-center justify-center gap-2 text-[10px] font-medium tracking-[0.08em] text-[#746B80]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#00B79F]" />
               SECURE ACCESS · YOUR SPACE, YOUR PACE
             </div>

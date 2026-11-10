@@ -19,10 +19,10 @@ import GoogleIcon from "@/components/GoogleIcon";
 import { safeReturnTo } from "@/lib/authReturnTo";
 
 const inputClass =
-  "h-[54px] rounded-[15px] border-[#E8E3EF] bg-[#FCFBFE] pl-11 pr-12 text-[14px] text-[#211B35] shadow-none transition placeholder:text-[#AAA3B4] focus-visible:border-[#783DF0] focus-visible:ring-2 focus-visible:ring-[#783DF0]/15 dark:border-[#393245] dark:bg-[#1C1825] dark:text-[#F5F1FA] dark:placeholder:text-[#827A90]";
-const labelClass = "text-[12px] font-semibold tracking-[0.01em] text-[#41394F] dark:text-[#DAD4E5]";
+  "h-[54px] rounded-[13px] border-[#E7E2EB] bg-white pl-11 pr-12 text-[14px] text-[#211B35] shadow-none transition placeholder:text-[#AAA3B4] focus-visible:border-[#783DF0] focus-visible:ring-2 focus-visible:ring-[#783DF0]/15 dark:border-[#393245] dark:bg-[#1C1825] dark:text-[#F5F1FA] dark:placeholder:text-[#827A90]";
+const labelClass = "text-[12px] font-semibold text-[#41394F] dark:text-[#DAD4E5]";
 const primaryButtonClass =
-  "h-[54px] w-full rounded-[15px] bg-[#783DF0] text-[14px] font-semibold text-white shadow-[0_12px_24px_-13px_rgba(120,61,240,0.85)] transition hover:-translate-y-0.5 hover:bg-[#6C32E4] hover:shadow-[0_16px_28px_-14px_rgba(120,61,240,0.9)] focus-visible:ring-2 focus-visible:ring-[#783DF0]/30 focus-visible:ring-offset-2";
+  "h-[54px] w-full rounded-[13px] bg-[#783DF0] text-[14px] font-semibold text-white shadow-[0_8px_18px_-12px_rgba(120,61,240,0.75)] transition hover:bg-[#6C32E4] focus-visible:ring-2 focus-visible:ring-[#783DF0]/30 focus-visible:ring-offset-2";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -69,9 +69,8 @@ export default function Login() {
 
   return (
     <AuthLayout
-      icon={Lock}
       title="Welcome back."
-      subtitle="Sign in to pick up right where you left off."
+      subtitle="Sign in to continue your search and pick up where you left off."
       footer={
         <>
           New to HOMORA?{" "}
@@ -90,7 +89,7 @@ export default function Login() {
           variant="outline"
           disabled={loading || googleLoading}
           onClick={handleGoogle}
-          className="h-[54px] w-full rounded-[15px] border-[#E8E3EF] bg-white text-[13px] font-semibold text-[#332B40] shadow-[0_2px_6px_rgba(33,27,53,0.03)] transition hover:border-[#D4C5F5] hover:bg-[#FAF8FF] dark:border-[#393245] dark:bg-[#1C1825] dark:text-[#F2EDF8] dark:hover:bg-[#282233]"
+          className="h-[54px] w-full rounded-[13px] border-[#E7E2EB] bg-white text-[13px] font-semibold text-[#332B40] shadow-none transition hover:border-[#D4C5F5] hover:bg-[#FAF8FF] dark:border-[#393245] dark:bg-[#1C1825] dark:text-[#F2EDF8] dark:hover:bg-[#282233]"
         >
           {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon className="h-[18px] w-[18px]" />}
           Continue with Google
@@ -98,19 +97,19 @@ export default function Login() {
 
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-[#ECE8F1] dark:bg-[#393245]" />
-          <span className="text-[10px] font-semibold tracking-[0.16em] text-[#A19AAA]">OR WITH EMAIL</span>
+          <span className="text-[10px] font-semibold tracking-[0.14em] text-[#A19AAA]">OR</span>
           <div className="h-px flex-1 bg-[#ECE8F1] dark:bg-[#393245]" />
         </div>
 
         {error && (
-          <div role="alert" className="flex items-start gap-2.5 rounded-[13px] border border-red-200 bg-red-50 px-4 py-3 text-[12px] leading-5 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
+          <div role="alert" className="flex items-start gap-2.5 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[12px] leading-5 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             <Label htmlFor="email" className={labelClass}>Email address</Label>
             <div className="relative">
               <Mail className="pointer-events-none absolute left-4 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-[#A29AAC]" aria-hidden="true" />
@@ -127,7 +126,7 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="password" className={labelClass}>Password</Label>
               <Link to="/forgot-password" className="text-[11px] font-semibold text-[#783DF0] underline-offset-4 hover:underline dark:text-[#BFA6FF]">
@@ -158,16 +157,12 @@ export default function Login() {
           </div>
 
           <Button type="submit" className={primaryButtonClass} disabled={loading || googleLoading}>
-            {loading ? (
-              <><Loader2 className="h-4 w-4 animate-spin" /> Signing you in...</>
-            ) : (
-              <>Sign in <ArrowRight className="h-4 w-4" /></>
-            )}
+            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Signing you in...</> : <>Sign in <ArrowRight className="h-4 w-4" /></>}
           </Button>
         </form>
 
         <p className="pt-1 text-center text-[11px] leading-5 text-[#9A93A5] dark:text-[#8E859C]">
-          By continuing, you agree to use HOMORA responsibly and keep your account secure.
+          Your information stays private and secure.
         </p>
       </div>
     </AuthLayout>

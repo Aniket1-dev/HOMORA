@@ -9,7 +9,6 @@ import {
   Lock,
   Mail,
   Loader2,
-  UserPlus,
 } from "lucide-react";
 import { signUp, verifySignUpCode, resendSignUpCode, signInWithGoogle } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -22,10 +21,10 @@ import { toast } from "@/components/ui/use-toast";
 import { safeReturnTo } from "@/lib/authReturnTo";
 
 const inputClass =
-  "h-[54px] rounded-[15px] border-[#E8E3EF] bg-[#FCFBFE] pl-11 pr-12 text-[14px] text-[#211B35] shadow-none transition placeholder:text-[#AAA3B4] focus-visible:border-[#783DF0] focus-visible:ring-2 focus-visible:ring-[#783DF0]/15 dark:border-[#393245] dark:bg-[#1C1825] dark:text-[#F5F1FA] dark:placeholder:text-[#827A90]";
-const labelClass = "text-[12px] font-semibold tracking-[0.01em] text-[#41394F] dark:text-[#DAD4E5]";
+  "h-[54px] rounded-[13px] border-[#E7E2EB] bg-white pl-11 pr-12 text-[14px] text-[#211B35] shadow-none transition placeholder:text-[#AAA3B4] focus-visible:border-[#783DF0] focus-visible:ring-2 focus-visible:ring-[#783DF0]/15 dark:border-[#393245] dark:bg-[#1C1825] dark:text-[#F5F1FA] dark:placeholder:text-[#827A90]";
+const labelClass = "text-[12px] font-semibold text-[#41394F] dark:text-[#DAD4E5]";
 const primaryButtonClass =
-  "h-[54px] w-full rounded-[15px] bg-[#783DF0] text-[14px] font-semibold text-white shadow-[0_12px_24px_-13px_rgba(120,61,240,0.85)] transition hover:-translate-y-0.5 hover:bg-[#6C32E4] hover:shadow-[0_16px_28px_-14px_rgba(120,61,240,0.9)] focus-visible:ring-2 focus-visible:ring-[#783DF0]/30 focus-visible:ring-offset-2";
+  "h-[54px] w-full rounded-[13px] bg-[#783DF0] text-[14px] font-semibold text-white shadow-[0_8px_18px_-12px_rgba(120,61,240,0.75)] transition hover:bg-[#6C32E4] focus-visible:ring-2 focus-visible:ring-[#783DF0]/30 focus-visible:ring-offset-2";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -103,7 +102,6 @@ export default function Register() {
   if (showOtp) {
     return (
       <AuthLayout
-        icon={Mail}
         title="Check your inbox."
         subtitle={<>We sent a 6-digit verification code to <strong className="font-semibold text-[#342B45] dark:text-white">{email}</strong>.</>}
         footer={
@@ -120,7 +118,7 @@ export default function Register() {
         }
       >
         <div className="space-y-6">
-          <div className="rounded-[18px] border border-[#EAE4F5] bg-[#FAF8FF] p-5 dark:border-[#3A314C] dark:bg-[#211A2D]">
+          <div className="rounded-[15px] border border-[#EAE4F5] bg-[#FAF8FF] p-5 dark:border-[#3A314C] dark:bg-[#211A2D]">
             <div className="mb-4 flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EEE7FF] text-[#783DF0] dark:bg-[#34264C] dark:text-[#C7B3FF]">
                 <Mail className="h-[18px] w-[18px]" />
@@ -131,19 +129,13 @@ export default function Register() {
               </div>
             </div>
             <div className="flex justify-center py-2">
-              <InputOTP
-                maxLength={6}
-                value={otpCode}
-                onChange={setOtpCode}
-                autoFocus
-                autoComplete="one-time-code"
-              >
-                <InputOTPGroup>
+              <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} autoFocus autoComplete="one-time-code">
+                <InputOTPGroup className="gap-2">
                   {[0, 1, 2, 3, 4, 5].map((index) => (
                     <InputOTPSlot
                       key={index}
                       index={index}
-                      className="h-12 w-10 rounded-xl border-[#DED5EF] bg-white text-[17px] font-semibold text-[#34264B] shadow-sm dark:border-[#4A405B] dark:bg-[#17131F] dark:text-white sm:h-[54px] sm:w-12"
+                      className="h-12 w-10 rounded-[10px] border border-[#DED5EF] bg-white text-[17px] font-semibold text-[#34264B] shadow-none dark:border-[#4A405B] dark:bg-[#17131F] dark:text-white sm:h-[54px] sm:w-12"
                     />
                   ))}
                 </InputOTPGroup>
@@ -153,17 +145,13 @@ export default function Register() {
           </div>
 
           {error && (
-            <div role="alert" className="flex items-start gap-2.5 rounded-[13px] border border-red-200 bg-red-50 px-4 py-3 text-[12px] leading-5 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
+            <div role="alert" className="flex items-start gap-2.5 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[12px] leading-5 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          <Button
-            className={primaryButtonClass}
-            onClick={handleVerify}
-            disabled={loading || otpCode.length !== 6}
-          >
+          <Button className={primaryButtonClass} onClick={handleVerify} disabled={loading || otpCode.length !== 6}>
             {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Verifying...</> : <>Verify email <ArrowRight className="h-4 w-4" /></>}
           </Button>
 
@@ -187,7 +175,6 @@ export default function Register() {
 
   return (
     <AuthLayout
-      icon={UserPlus}
       title="Make yourself at home."
       subtitle="Create your account and find a place that fits the way you live."
       footer={
@@ -199,13 +186,13 @@ export default function Register() {
         </>
       }
     >
-      <div className="space-y-5">
+      <div className="space-y-4">
         <Button
           type="button"
           variant="outline"
           disabled={loading || googleLoading}
           onClick={handleGoogle}
-          className="h-[54px] w-full rounded-[15px] border-[#E8E3EF] bg-white text-[13px] font-semibold text-[#332B40] shadow-[0_2px_6px_rgba(33,27,53,0.03)] transition hover:border-[#D4C5F5] hover:bg-[#FAF8FF] dark:border-[#393245] dark:bg-[#1C1825] dark:text-[#F2EDF8] dark:hover:bg-[#282233]"
+          className="h-[54px] w-full rounded-[13px] border-[#E7E2EB] bg-white text-[13px] font-semibold text-[#332B40] shadow-none transition hover:border-[#D4C5F5] hover:bg-[#FAF8FF] dark:border-[#393245] dark:bg-[#1C1825] dark:text-[#F2EDF8] dark:hover:bg-[#282233]"
         >
           {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon className="h-[18px] w-[18px]" />}
           Sign up with Google
@@ -213,80 +200,43 @@ export default function Register() {
 
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-[#ECE8F1] dark:bg-[#393245]" />
-          <span className="text-[10px] font-semibold tracking-[0.16em] text-[#A19AAA]">OR WITH EMAIL</span>
+          <span className="text-[10px] font-semibold tracking-[0.14em] text-[#A19AAA]">OR</span>
           <div className="h-px flex-1 bg-[#ECE8F1] dark:bg-[#393245]" />
         </div>
 
         {error && (
-          <div role="alert" className="flex items-start gap-2.5 rounded-[13px] border border-red-200 bg-red-50 px-4 py-3 text-[12px] leading-5 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
+          <div role="alert" className="flex items-start gap-2.5 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[12px] leading-5 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          <div className="space-y-1.5">
             <Label htmlFor="email" className={labelClass}>Email address</Label>
             <div className="relative">
               <Mail className="pointer-events-none absolute left-4 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-[#A29AAC]" aria-hidden="true" />
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={inputClass}
-                required
-              />
+              <Input id="email" type="email" autoComplete="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} required />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="password" className={labelClass}>Create password</Label>
             <div className="relative">
               <Lock className="pointer-events-none absolute left-4 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-[#A29AAC]" aria-hidden="true" />
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="new-password"
-                placeholder="Create a password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={inputClass}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((value) => !value)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-[#92899F] transition hover:bg-[#F0ECF6] hover:text-[#51465F] dark:hover:bg-[#302A3A] dark:hover:text-white"
-              >
+              <Input id="password" type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder="Create a password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} required />
+              <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-[#92899F] hover:bg-[#F0ECF6] hover:text-[#51465F] dark:hover:bg-[#302A3A] dark:hover:text-white">
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="confirm" className={labelClass}>Confirm password</Label>
             <div className="relative">
               <Lock className="pointer-events-none absolute left-4 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-[#A29AAC]" aria-hidden="true" />
-              <Input
-                id="confirm"
-                type={showConfirmPassword ? "text" : "password"}
-                autoComplete="new-password"
-                placeholder="Enter your password again"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={inputClass}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword((value) => !value)}
-                aria-label={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
-                className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-[#92899F] transition hover:bg-[#F0ECF6] hover:text-[#51465F] dark:hover:bg-[#302A3A] dark:hover:text-white"
-              >
+              <Input id="confirm" type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" placeholder="Enter your password again" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={inputClass} required />
+              <button type="button" onClick={() => setShowConfirmPassword((value) => !value)} aria-label={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"} className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-[#92899F] hover:bg-[#F0ECF6] hover:text-[#51465F] dark:hover:bg-[#302A3A] dark:hover:text-white">
                 {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
@@ -298,7 +248,7 @@ export default function Register() {
         </form>
 
         <p className="pt-1 text-center text-[11px] leading-5 text-[#9A93A5] dark:text-[#8E859C]">
-          By creating an account, you agree to keep your HOMORA account information accurate and secure.
+          Your information is protected and only used to manage your HOMORA account.
         </p>
       </div>
     </AuthLayout>

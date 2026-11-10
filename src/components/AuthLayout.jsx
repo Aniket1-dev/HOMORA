@@ -2,7 +2,7 @@ import React from "react";
 import { Home } from "lucide-react";
 
 const heroImage =
-  "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1800&q=85";
+  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1900&q=88";
 
 function Wordmark({ light = false }) {
   return (
@@ -10,78 +10,72 @@ function Wordmark({ light = false }) {
       <span className={`flex h-10 w-10 items-center justify-center rounded-[13px] ${light ? "bg-white text-[#783DF0]" : "bg-[#783DF0] text-white"}`}>
         <Home className="h-[19px] w-[19px]" strokeWidth={2.4} />
       </span>
-      <span className={`text-[24px] font-extrabold tracking-[-0.075em] ${light ? "text-white" : "text-[#211B35] dark:text-white"}`}>
+      <span className={`text-[23px] font-extrabold tracking-[-0.075em] ${light ? "text-white" : "text-[#211B35] dark:text-white"}`}>
         HOMORA<span className={light ? "text-[#CDBAFF]" : "text-[#783DF0]"}>.</span>
       </span>
     </div>
   );
 }
 
-function EditorialHero() {
+function LivingPreview() {
   return (
-    <aside className="relative hidden min-h-[760px] overflow-hidden bg-[#30243E] lg:block">
+    <aside className="relative hidden min-h-[720px] overflow-hidden rounded-[25px] bg-[#382A47] lg:flex lg:flex-col">
       <img
         src={heroImage}
-        alt="A bright, thoughtfully designed living space"
+        alt="Warm, naturally lit contemporary living room"
         className="absolute inset-0 h-full w-full object-cover"
         fetchPriority="high"
       />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(27,19,39,0.44)_0%,rgba(27,19,39,0.04)_34%,rgba(27,19,39,0.14)_52%,rgba(27,19,39,0.82)_100%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(82,42,145,0.22),transparent_58%)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/5 to-[#171020]/75" />
+      <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(86,46,143,0.30),transparent_58%)]" />
 
-      <div className="relative z-10 flex h-full min-h-[760px] flex-col justify-between p-10 xl:p-12">
+      <div className="relative z-10 flex flex-1 flex-col justify-between p-9 xl:p-11">
         <Wordmark light />
 
-        <div className="max-w-[500px] pb-3">
-          <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/75">
-            A new place. A new possibility.
+        <div className="max-w-[470px] pb-3">
+          <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/75">
+            HOMORA · DISCOVER
           </p>
-          <h2 className="max-w-[480px] text-[48px] font-semibold leading-[1.04] tracking-[-0.06em] text-white xl:text-[58px]">
-            Find a place
+          <h2 className="text-[45px] font-semibold leading-[1.06] tracking-[-0.06em] text-white xl:text-[54px]">
+            A better way
             <br />
-            that feels <span className="font-serif font-normal italic text-[#D2C1FF]">like yours.</span>
+            to find <span className="font-serif font-normal italic text-[#D8C9FF]">your place.</span>
           </h2>
-          <p className="mt-6 max-w-[370px] text-[14px] leading-7 text-white/78">
-            Thoughtful spaces, clearer choices and the people who make a new city feel familiar.
+          <p className="mt-5 max-w-[350px] text-[14px] leading-7 text-white/80">
+            Explore thoughtfully listed homes, understand the real cost, and find a space that fits your everyday.
           </p>
-          <div className="mt-9 flex items-center gap-3">
-            <span className="h-px w-9 bg-[#CDBAFF]" />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75">
-              Find your place. Find your people.
-            </span>
-          </div>
         </div>
 
-        <div className="flex items-center justify-between border-t border-white/25 pt-5 text-[10px] tracking-[0.08em] text-white/65">
-          <span>HOMORA LIVING</span>
-          <span>MADE FOR THE WAY YOU LIVE</span>
+        <div className="flex items-center justify-between border-t border-white/25 pt-5 text-[10px] tracking-[0.1em] text-white/70">
+          <span>FIND YOUR PLACE. FIND YOUR PEOPLE.</span>
+          <span>01 / DISCOVER</span>
         </div>
       </div>
     </aside>
   );
 }
 
-export default function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
+export default function AuthLayout({ title, subtitle, footer, children }) {
   return (
-    <main className="min-h-screen bg-[#F3F0F6] p-0 dark:bg-[#100D17] lg:p-5">
-      <div className="mx-auto grid min-h-screen max-w-[1440px] overflow-hidden bg-white shadow-none dark:bg-[#15111D] lg:min-h-[760px] lg:grid-cols-[1fr_1fr] lg:rounded-[28px] lg:shadow-[0_28px_90px_-42px_rgba(42,27,66,0.30)]">
-        <EditorialHero />
+    <main className="min-h-screen bg-[#F4F1F7] p-0 dark:bg-[#100D17] lg:p-4 xl:p-5">
+      <div className="mx-auto grid min-h-screen max-w-[1460px] gap-0 bg-white dark:bg-[#15111D] lg:min-h-[calc(100vh-32px)] lg:grid-cols-[0.94fr_1.06fr] lg:gap-3 lg:rounded-[30px] lg:bg-transparent lg:p-2 xl:min-h-[calc(100vh-40px)]">
+        <LivingPreview />
 
-        <section className="flex min-h-screen items-center justify-center px-6 py-10 dark:bg-[#15111D] sm:px-10 lg:min-h-[760px] lg:px-12 xl:px-16">
-          <div className="w-full max-w-[430px]">
-            <div className="mb-12 lg:hidden">
+        <section className="flex min-h-screen items-center justify-center px-6 py-9 dark:bg-[#15111D] sm:px-10 lg:min-h-[720px] lg:rounded-[25px] lg:bg-white lg:px-12 xl:px-16 dark:lg:bg-[#15111D]">
+          <div className="w-full max-w-[408px]">
+            <div className="mb-10 lg:hidden">
               <Wordmark />
             </div>
 
             <div className="mb-8">
-              <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.22em] text-[#8D829F] dark:text-[#A99EBB]">
-                HOMORA ACCOUNT
+              <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8D829F] dark:text-[#A99EBB]">
+                YOUR HOMORA ACCOUNT
               </p>
-              <h1 className="text-[34px] font-semibold leading-[1.12] tracking-[-0.055em] text-[#211B35] dark:text-[#F5F1FA] sm:text-[38px]">
+              <h1 className="text-[35px] font-semibold leading-[1.1] tracking-[-0.06em] text-[#211B35] dark:text-[#F5F1FA] sm:text-[39px]">
                 {title}
               </h1>
               {subtitle && (
-                <p className="mt-3 max-w-[390px] text-[14px] leading-6 text-[#777084] dark:text-[#AAA2B8]">
+                <p className="mt-3 max-w-[370px] text-[14px] leading-6 text-[#777084] dark:text-[#AAA2B8]">
                   {subtitle}
                 </p>
               )}
@@ -95,9 +89,9 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
               </div>
             )}
 
-            <div className="mt-10 flex items-center justify-center gap-2 text-[10px] font-medium tracking-[0.08em] text-[#AAA4B2] dark:text-[#797187]">
+            <div className="mt-9 flex items-center justify-center gap-2 text-[10px] font-medium tracking-[0.08em] text-[#AAA4B2] dark:text-[#797187]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#00B79F]" />
-              YOUR SPACE. YOUR PACE.
+              SECURE ACCESS · YOUR SPACE, YOUR PACE
             </div>
           </div>
         </section>

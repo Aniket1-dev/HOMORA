@@ -155,4 +155,3 @@ export default function Login() {
     </AuthLayout>
   );
 }
-\n

@@ -7,7 +7,6 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import DiscoverShell from '@/components/discover/DiscoverShell';
-import HostShell from '@/components/host/HostShell';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Home from '@/pages/Home';
 import Discover from '@/pages/Discover';
@@ -17,10 +16,6 @@ import PropertyDetail from '@/pages/PropertyDetail';
 import Compare from '@/pages/Compare';
 import Roommates from '@/pages/Roommates';
 import MyActivity from '@/pages/MyActivity';
-import OwnerDashboard from '@/pages/OwnerDashboard';
-import ListingWizard from '@/pages/ListingWizard';
-import OwnerVerificationPage from '@/pages/OwnerVerificationPage';
-import Admin from '@/pages/Admin';
 import Account from '@/pages/Account';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -70,28 +65,13 @@ const AuthenticatedApp = () => {
         </Route>
       </Route>
 
-      {/* HOMORA Host — the owner console, a separate app on the same backend */}
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login?returnTo=/host" replace />} />}>
-        <Route path="/host" element={<HostShell />}>
-          <Route index element={<OwnerDashboard />} />
-          <Route path="listings/new" element={<ListingWizard />} />
-          <Route path="listings/:id/edit" element={<ListingWizard />} />
-          <Route path="verification" element={<OwnerVerificationPage />} />
-          <Route path="admin" element={<Admin />} />
-        </Route>
-      </Route>
+      {/* Partner and Admin are separate applications and are not routed from Discover. */}
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/mfa" element={<Mfa />} />
-
-      {/* Earlier owner paths keep working */}
-      <Route path="/owner/listings/new" element={<Navigate to="/host/listings/new" replace />} />
-      <Route path="/owner/verification" element={<Navigate to="/host/verification" replace />} />
-      <Route path="/owner/*" element={<Navigate to="/host" replace />} />
-      <Route path="/admin" element={<Navigate to="/host/admin" replace />} />
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>

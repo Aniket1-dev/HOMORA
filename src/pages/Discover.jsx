@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { entities } from "@/services/entities";
+import { supabase } from "@/lib/supabase/client";
 import PropertyCard from "@/components/PropertyCard";
 import FilterPanel from "@/components/discover/FilterPanel";
 import EmptyState from "@/components/ui-bits/EmptyState";
@@ -48,6 +49,7 @@ export default function Discover() {
   const [showFilters, setShowFilters] = useState(false);
   const [cities, setCities] = useState(CITIES);
   const [recent, setRecent] = useState([]);
+  const [realtimeVersion, setRealtimeVersion] = useState(0);
 
   useEffect(() => {
     setTerm(query);
@@ -89,6 +91,15 @@ export default function Discover() {
   const sortValue = { newest: "-created_date", rent_low: "rent", rent_high: "-rent", rating: "-rating" }[sort];
 
   useEffect(() => {
+    const channel = supabase.channel("discover-live-property-results")
+      .on("postgres_changes", { event: "*", schema: "public", table: "properties" }, () => {
+        setRealtimeVersion((version) => version + 1);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  useEffect(() => {
     let active = true;
     const run = async () => {
       setLoading(true);
@@ -106,7 +117,7 @@ export default function Discover() {
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, sort, JSON.stringify(filters)]);
+  }, [query, sort, JSON.stringify(filters), realtimeVersion]);
 
   const loadMore = async () => {
     if (!cursor) return;

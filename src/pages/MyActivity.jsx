@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { entities } from "@/services/entities";
 import PropertyCard from "@/components/PropertyCard";
@@ -7,6 +7,7 @@ import StatusPill from "@/components/ui-bits/StatusPill";
 import { inr } from "@/lib/pricing";
 import { addMyConnection, getMyRequests as getSavedRequestIds, getSaved } from "@/lib/guestStore";
 import { useAuth } from "@/lib/AuthContext";
+import { supabase } from "@/lib/supabase/client";
 import { cancelVisit as cancelVisitRequest, getMyRequests, manageBooking } from "@/services/bookings";
 
 const tabs = [
@@ -35,7 +36,7 @@ export default function MyActivity() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     const requests = getSavedRequestIds();
 
@@ -50,12 +51,29 @@ export default function MyActivity() {
 
     setData({ bookings, visits, enquiries, saved, connections: merged });
     setLoading(false);
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [load]);
+
+  useEffect(() => {
+    if (!user?.id) return undefined;
+    let refreshTimer;
+    const refresh = () => {
+      if (refreshTimer) window.clearTimeout(refreshTimer);
+      refreshTimer = window.setTimeout(() => load(), 120);
+    };
+    const channel = supabase.channel("discover-tenant-activity-" + user.id)
+      .on("postgres_changes", { event: "*", schema: "public", table: "bookings", filter: "tenant_id=eq." + user.id }, refresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "visits", filter: "tenant_id=eq." + user.id }, refresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "enquiries", filter: "tenant_id=eq." + user.id }, refresh)
+      .subscribe();
+    return () => {
+      if (refreshTimer) window.clearTimeout(refreshTimer);
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, load]);
 
   useEffect(() => {
     const next = new URLSearchParams(search).get("tab");

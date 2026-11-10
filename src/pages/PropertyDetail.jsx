@@ -1,4 +1,5 @@
 import { incrementPropertyViews } from "@/services/bookings";
+import { supabase } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -82,6 +83,25 @@ export default function PropertyDetail() {
     return () => {
       active = false;
     };
+  }, [id]);
+
+  // Partner room and bed edits update these shared rows. Refresh availability in place.
+  useEffect(() => {
+    let active = true;
+    const refreshInventory = async () => {
+      const [roomPage, bedPage] = await Promise.all([
+        entities.Room.filter({ propertyId: id }, { sort: "roomNumber", limit: 50 }),
+        entities.Bed.filter({ propertyId: id }, { sort: "bedNumber", limit: 80 }),
+      ]);
+      if (!active) return;
+      setRooms(roomPage?.items || []);
+      setBeds(bedPage?.items || []);
+    };
+    const channel = supabase.channel("discover-property-inventory-" + id)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rooms", filter: "property_id=eq." + id }, refreshInventory)
+      .on("postgres_changes", { event: "*", schema: "public", table: "beds", filter: "property_id=eq." + id }, refreshInventory)
+      .subscribe();
+    return () => { active = false; supabase.removeChannel(channel); };
   }, [id]);
 
   if (loading) {

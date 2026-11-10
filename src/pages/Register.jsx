@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, Lock, Mail, Loader2, ArrowLeft, ShieldCheck } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, Lock, Mail, Loader2, ShieldCheck } from "lucide-react";
 import { signUp, verifySignUpCode, resendSignUpCode, signInWithGoogle } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

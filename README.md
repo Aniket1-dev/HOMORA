@@ -59,3 +59,8 @@ It does not replace testing against a real Supabase project.
 - Reviews publish immediately (unchanged behaviour); an admin can hide them (`reviews.status = 'hidden'`) but there is no UI yet.
 - Payments are not implemented; booking payment status stays `offline_pending`.
 - Saved homes / compare list remain in browser storage.
+
+
+## HOMORA Partner integration
+
+Discover and Partner are separate frontends using the same Supabase project, Auth identities and shared PostgreSQL records. Set `VITE_PARTNER_APP_URL` to the deployed Partner origin to enable owner entry points. Partner-created properties are stored in `public.properties`; only Admin-approved rows with `status = published` are visible to Discover. Rooms, beds, enquiries, visits, bookings and notifications are shared rows protected by RLS and signalled through Supabase Realtime. Auth identities are shared, but browser sessions are origin-scoped, so users may need to sign in once in each application.

@@ -1,5 +1,5 @@
 import { Link, NavLink } from "react-router-dom";
-import { Heart, Search } from "lucide-react";
+import { Heart, Search, ExternalLink } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -14,6 +14,7 @@ const links = [
 export default function DiscoverHeader() {
   const { user, isAuthenticated } = useAuth();
   const initials = (user?.display_name || user?.full_name || user?.email || "H").trim().slice(0, 1).toUpperCase();
+  const partnerUrl = (import.meta.env.VITE_PARTNER_APP_URL || "").trim();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 glass-panel">
@@ -49,6 +50,7 @@ export default function DiscoverHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1.5">
+          {partnerUrl && <a href={partnerUrl} target="_blank" rel="noopener noreferrer" className="hidden items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2 text-[12px] font-semibold text-foreground/80 transition hover:border-primary/40 hover:text-primary lg:inline-flex">List your property <ExternalLink className="h-3.5 w-3.5" /></a>}
           <Link
             to="/discover"
             aria-label="Search homes"

@@ -1,6 +1,7 @@
+import { useAuth } from "@/lib/AuthContext";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import StatCard from "@/components/ui-bits/StatCard";
 import StatusPill from "@/components/ui-bits/StatusPill";
 import ModerationPanel from "@/components/admin/ModerationPanel";
@@ -18,17 +19,18 @@ const tabs = [
 ];
 
 export default function Admin() {
+  const { user } = useAuth();
   const [tab, setTab] = useState("overview");
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({ properties: [], verifications: [], reports: [], bookings: [], rooms: [] });
 
   const load = useCallback(async () => {
     const [properties, verifications, reports, bookings, rooms] = await Promise.all([
-      base44.entities.Property.list({ sort: "-created_date", limit: 200 }),
-      base44.entities.OwnerVerification.list({ sort: "-created_date", limit: 100 }),
-      base44.entities.Report.list({ sort: "-created_date", limit: 100 }),
-      base44.entities.Booking.list({ sort: "-created_date", limit: 100 }),
-      base44.entities.Room.list({ limit: 300 }),
+      entities.Property.list({ sort: "-created_date", limit: 200 }),
+      entities.OwnerVerification.list({ sort: "-created_date", limit: 100 }),
+      entities.Report.list({ sort: "-created_date", limit: 100 }),
+      entities.Booking.list({ sort: "-created_date", limit: 100 }),
+      entities.Room.list({ limit: 300 }),
     ]);
     setData({
       properties: properties?.items || [],
@@ -43,6 +45,10 @@ export default function Admin() {
   useEffect(() => {
     load();
   }, [load]);
+
+  if (user?.role !== "admin") {
+    return <p className="mx-auto max-w-xl px-4 py-16 text-center text-sm text-muted-foreground">This area is restricted to HOMORA administrators.</p>;
+  }
 
   const { properties, verifications, reports, bookings, rooms } = data;
   const counts = {

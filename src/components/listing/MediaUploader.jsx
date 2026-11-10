@@ -1,5 +1,5 @@
+import { uploadListingImage } from "@/services/storage";
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
 import { Upload, X, ImagePlus } from "lucide-react";
 
 export default function MediaUploader({ images, onChange }) {
@@ -23,8 +23,7 @@ export default function MediaUploader({ images, onChange }) {
           setError("Each image must be under 8 MB.");
           continue;
         }
-        const result = await base44.integrations.Core.UploadPublicFile({ file });
-        if (result?.file_url) uploaded.push(result.file_url);
+        uploaded.push(await uploadListingImage(file));
       }
       onChange([...images, ...uploaded].slice(0, 12));
     } catch (err) {

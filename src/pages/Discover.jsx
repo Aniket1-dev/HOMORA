@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Search, SlidersHorizontal, X } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import PropertyCard from "@/components/PropertyCard";
 import FilterPanel from "@/components/discover/FilterPanel";
 import EmptyState from "@/components/ui-bits/EmptyState";
@@ -56,7 +56,7 @@ export default function Discover() {
 
   useEffect(() => {
     setRecent(getRecentSearches());
-    base44.entities.Property.list({ distinct: "city" })
+    entities.Property.list({ distinct: "city" })
       .then((res) => {
         const values = (res?.items || []).filter(Boolean);
         if (values.length) setCities(values);
@@ -93,13 +93,13 @@ export default function Discover() {
     const run = async () => {
       setLoading(true);
       const q = buildQuery();
-      const page = await base44.entities.Property.filter(q, { sort: sortValue, limit: 9 });
+      const page = await entities.Property.filter(q, { sort: sortValue, limit: 9 });
       if (!active) return;
       setItems(page?.items || []);
       setCursor(page?.next_cursor || null);
       setHasMore(!!page?.has_more);
       setLoading(false);
-      base44.entities.Property.count(q).then((value) => active && setTotal(value)).catch(() => {});
+      entities.Property.count(q).then((value) => active && setTotal(value)).catch(() => {});
     };
     run();
     return () => {
@@ -111,7 +111,7 @@ export default function Discover() {
   const loadMore = async () => {
     if (!cursor) return;
     setLoading(true);
-    const page = await base44.entities.Property.filter(buildQuery(), { sort: sortValue, limit: 9, cursor });
+    const page = await entities.Property.filter(buildQuery(), { sort: sortValue, limit: 9, cursor });
     setItems((prev) => [...prev, ...(page?.items || [])]);
     setCursor(page?.next_cursor || null);
     setHasMore(!!page?.has_more);

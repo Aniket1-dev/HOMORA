@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import Modal from "@/components/ui-bits/Modal";
 import { addMyRequest } from "@/lib/guestStore";
 
@@ -20,7 +20,7 @@ export default function EnquiryDialog({ open, onClose, property }) {
     if (form.phone.replace(/\D/g, "").length < 10) return setError("Enter a valid 10-digit phone number.");
     setState("saving");
     try {
-      const created = await base44.entities.Enquiry.create({
+      const created = await entities.Enquiry.create({
         propertyId: property.id,
         propertyTitle: property.title,
         name: form.name.trim(),

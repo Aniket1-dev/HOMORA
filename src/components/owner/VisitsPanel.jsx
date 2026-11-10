@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import StatusPill from "@/components/ui-bits/StatusPill";
 
 export default function VisitsPanel({ visits, onRefresh }) {
@@ -7,7 +7,7 @@ export default function VisitsPanel({ visits, onRefresh }) {
 
   const update = async (visit, status) => {
     setBusy(visit.id);
-    await base44.entities.Visit.update(visit.id, { status });
+    await entities.Visit.update(visit.id, { status });
     await onRefresh();
     setBusy("");
   };

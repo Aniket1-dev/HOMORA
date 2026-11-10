@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import StatusPill from "@/components/ui-bits/StatusPill";
 
 const statuses = ["open", "investigating", "resolved", "dismissed"];
@@ -10,14 +10,14 @@ export default function ReportsPanel({ reports, onRefresh }) {
 
   const update = async (report, patch) => {
     setBusy(report.id);
-    await base44.entities.Report.update(report.id, { ...patch, adminNote: notes[report.id] ?? report.adminNote ?? "" });
+    await entities.Report.update(report.id, { ...patch, adminNote: notes[report.id] ?? report.adminNote ?? "" });
     await onRefresh();
     setBusy("");
   };
 
   const suspendTarget = async (report) => {
     if (report.targetType === "property") {
-      await base44.entities.Property.update(report.targetId, { status: "suspended" });
+      await entities.Property.update(report.targetId, { status: "suspended" });
     }
     await update(report, { status: "resolved" });
   };

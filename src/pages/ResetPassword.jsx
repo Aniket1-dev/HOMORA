@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/lib/supabase/client";
+import { setNewPassword as saveNewPassword } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,11 +9,15 @@ import { Lock, Loader2, AlertTriangle } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 
 export default function ResetPassword() {
-  const [searchParams] = useSearchParams();
-  const resetToken = searchParams.get("token");
-  const emailFromUrl = searchParams.get("email") || "";
-  const [email, setEmail] = useState(emailFromUrl);
-  const [verificationCode, setVerificationCode] = useState(resetToken || "");
+  // The emailed link signs the visitor into a short-lived recovery session; without one the link is invalid.
+  const [hasRecoverySession, setHasRecoverySession] = useState(null);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setHasRecoverySession(Boolean(data.session)));
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || session) setHasRecoverySession(true);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,8 +33,8 @@ export default function ResetPassword() {
     }
     setLoading(true);
     try {
-      await base44.auth.resetPassword({ email, resetToken: verificationCode, newPassword });
-      window.location.href = "/login";
+      await saveNewPassword(newPassword);
+      window.location.href = "/";
     } catch (err) {
       setError(err.message || "Failed to reset password");
     } finally {
@@ -37,6 +42,25 @@ export default function ResetPassword() {
     }
   };
 
+  if (hasRecoverySession === null) return null;
+  if (!hasRecoverySession) {
+    return (
+      <AuthLayout
+        icon={AlertTriangle}
+        title="Invalid reset link"
+        subtitle="This password reset link is missing or invalid"
+        footer={
+          <Link to="/forgot-password" className="text-primary font-medium hover:underline">
+            Request a new link
+          </Link>
+        }
+      >
+        <p className="text-sm text-foreground text-center">
+          The link you used appears to be incomplete. Please request a new password reset email.
+        </p>
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout
@@ -50,14 +74,6 @@ export default function ResetPassword() {
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email address</Label>
-          <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="code">6-digit reset code</Label>
-          <Input id="code" inputMode="numeric" maxLength={6} value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} required />
-        </div>
         <div className="space-y-2">
           <Label htmlFor="password">New Password</Label>
           <div className="relative">

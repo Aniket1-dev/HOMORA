@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import ProfileWizard from "@/components/roommates/ProfileWizard";
 import RoommateCard from "@/components/roommates/RoommateCard";
 import EmptyState from "@/components/ui-bits/EmptyState";
 import { compatibility } from "@/lib/roommateMatch";
-import { getMyProfileId, setMyProfileId } from "@/lib/guestStore";
+import { useAuth } from "@/lib/AuthContext";
+import { getRoommateContactEmails } from "@/services/bookings";
 import { inr } from "@/lib/pricing";
 import { CITIES } from "@/lib/constants";
 
@@ -15,6 +16,7 @@ const tabs = [
 ];
 
 export default function Roommates() {
+  const { user } = useAuth();
   const [tab, setTab] = useState("discover");
   const [loading, setLoading] = useState(true);
   const [mine, setMine] = useState(null);
@@ -25,52 +27,47 @@ export default function Roommates() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const myId = getMyProfileId();
-    let myProfile = null;
-    if (myId) {
-      myProfile = await base44.entities.RoommateProfile.get(myId).catch((e) =>
-        e.status === 404 || e.response?.status === 404 ? null : Promise.reject(e)
-      );
-    }
-    setMine(myProfile);
+    const myProfile = (await entities.RoommateProfile.filter({ ownerId: user.id }, { limit: 1 })).items[0] || null;
+    const emails = myProfile ? await getRoommateContactEmails().catch(() => ({})) : {};
+    const withEmail = (record) => (record ? { ...record, contactEmail: emails[record.id] || record.contactEmail || "" } : record);
+    setMine(withEmail(myProfile));
 
     if (myProfile) {
       const [profilePage, connectionPage] = await Promise.all([
-        base44.entities.RoommateProfile.filter({ paused: { $ne: true } }, { limit: 60 }),
-        base44.entities.RoommateConnection.filter(
+        entities.RoommateProfile.filter({ paused: { $ne: true } }, { limit: 60 }),
+        entities.RoommateConnection.filter(
           { $or: [{ fromProfileId: myProfile.id }, { toProfileId: myProfile.id }] },
           { limit: 100 }
         ),
       ]);
-      setProfiles((profilePage?.items || []).filter((item) => item.id !== myProfile.id));
+      setProfiles((profilePage?.items || []).filter((item) => item.id !== myProfile.id).map(withEmail));
       setConnections(connectionPage?.items || []);
     } else {
       setProfiles([]);
       setConnections([]);
     }
     setLoading(false);
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     load();
   }, [load]);
 
   const createProfile = async (payload) => {
-    const created = await base44.entities.RoommateProfile.create(payload);
-    setMyProfileId(created.id);
+    const created = await entities.RoommateProfile.create(payload);
     await load();
     setEditing(false);
     setTab("discover");
   };
 
   const updateProfile = async (payload) => {
-    const updated = await base44.entities.RoommateProfile.update(mine.id, payload);
-    setMine(updated);
+    const updated = await entities.RoommateProfile.update(mine.id, payload);
+    setMine({ ...updated, contactEmail: payload.contactEmail ?? mine.contactEmail });
     setEditing(false);
   };
 
   const connect = async (profile) => {
-    await base44.entities.RoommateConnection.create({
+    await entities.RoommateConnection.create({
       fromProfileId: mine.id,
       fromName: mine.displayName,
       toProfileId: profile.id,
@@ -82,12 +79,12 @@ export default function Roommates() {
   };
 
   const respond = async (connection, status) => {
-    await base44.entities.RoommateConnection.update(connection.id, { status });
+    await entities.RoommateConnection.update(connection.id, { status });
     await load();
   };
 
   const togglePause = async () => {
-    const updated = await base44.entities.RoommateProfile.update(mine.id, { paused: !mine.paused });
+    const updated = await entities.RoommateProfile.update(mine.id, { paused: !mine.paused });
     setMine(updated);
   };
 

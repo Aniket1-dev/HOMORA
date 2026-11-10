@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { updateMyProfile } from "@/lib/auth";
 
 const fields = [
   { key: "display_name", label: "Display name", placeholder: "How owners and roommates see you" },
@@ -42,7 +42,7 @@ export default function ProfileForm({ user, onSaved }) {
     setSaving(true);
     setError("");
     try {
-      await base44.auth.updateMe(form);
+      await updateMyProfile(form);
       setSaved(true);
       if (onSaved) await onSaved();
     } catch (exception) {

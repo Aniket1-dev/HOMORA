@@ -1,5 +1,6 @@
+import { manageBooking } from "@/services/bookings";
 import { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import Modal from "@/components/ui-bits/Modal";
 import { addMyRequest } from "@/lib/guestStore";
 import { inr } from "@/lib/pricing";
@@ -23,7 +24,7 @@ export default function BookingDialog({ open, onClose, property }) {
     setState("idle");
     setError("");
     setSelectedBed(null);
-    base44.entities.Bed.filter({ propertyId: property.id, status: "available" }, { sort: "bedNumber", limit: 60 })
+    entities.Bed.filter({ propertyId: property.id, status: "available" }, { sort: "bedNumber", limit: 60 })
       .then((page) => {
         if (!active) return;
         const items = page?.items || [];
@@ -45,7 +46,7 @@ export default function BookingDialog({ open, onClose, property }) {
     if (beds.length && !selectedBed) return setError("Choose an available bed.");
     setState("saving");
     try {
-      const response = await base44.functions.invoke("manageBooking", {
+      const response = await manageBooking({
         action: "create",
         propertyId: property.id,
         roomId: selectedBed?.roomId || null,

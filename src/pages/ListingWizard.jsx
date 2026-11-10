@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import { steps, emptyListing, numericFields } from "@/components/listing/wizardSchema";
 import RoomsEditor from "@/components/listing/RoomsEditor";
 import MediaUploader from "@/components/listing/MediaUploader";
@@ -23,7 +23,7 @@ export default function ListingWizard() {
 
   useEffect(() => {
     if (!id) return;
-    base44.entities.Property.get(id)
+    entities.Property.get(id)
       .then((property) => {
         setForm({ ...emptyListing, ...property, availableFrom: property.availableFrom?.slice(0, 10) || "" });
       })
@@ -84,14 +84,13 @@ export default function ListingWizard() {
           payload[key] = value === "" || value === undefined ? null : value;
         }
       }
-      if (!payload.ownerVerified) payload.ownerVerified = false;
 
       if (id) {
-        await base44.entities.Property.update(id, payload);
+        await entities.Property.update(id, payload);
       } else {
-        const created = await base44.entities.Property.create(payload);
+        const created = await entities.Property.create(payload);
         for (const room of rooms) {
-          const roomRecord = await base44.entities.Room.create({
+          const roomRecord = await entities.Room.create({
             propertyId: created.id,
             roomNumber: room.roomNumber,
             floor: Number(room.floor) || 0,
@@ -113,11 +112,7 @@ export default function ListingWizard() {
             monthlyRent: Number(room.rentPerBed || form.rent) || 0,
             status: "available",
           }));
-          await base44.entities.Bed.bulkCreate(beds);
-        }
-        if (rooms.length) {
-          const totalBeds = rooms.reduce((sum, room) => sum + (Number(room.totalBeds) || 0), 0);
-          await base44.entities.Property.update(created.id, { totalBeds, availableBeds: totalBeds });
+          await entities.Bed.bulkCreate(beds);
         }
       }
       navigate("/owner");

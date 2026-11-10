@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import StatusPill from "@/components/ui-bits/StatusPill";
 
 const statuses = ["new", "contacted", "visit_scheduled", "converted", "closed"];
@@ -8,12 +8,12 @@ export default function EnquiriesPanel({ enquiries, onRefresh }) {
   const [notes, setNotes] = useState({});
 
   const setStatus = async (enquiry, status) => {
-    await base44.entities.Enquiry.update(enquiry.id, { status });
+    await entities.Enquiry.update(enquiry.id, { status });
     await onRefresh();
   };
 
   const saveNote = async (enquiry) => {
-    await base44.entities.Enquiry.update(enquiry.id, { ownerNote: notes[enquiry.id] ?? enquiry.ownerNote ?? "" });
+    await entities.Enquiry.update(enquiry.id, { ownerNote: notes[enquiry.id] ?? enquiry.ownerNote ?? "" });
     await onRefresh();
   };
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import StatusPill from "@/components/ui-bits/StatusPill";
 import { inr } from "@/lib/pricing";
 
@@ -21,14 +21,14 @@ export default function ModerationPanel({ properties, onRefresh }) {
 
   const setStatus = async (property, status) => {
     setBusy(property.id);
-    await base44.entities.Property.update(property.id, { status });
+    await entities.Property.update(property.id, { status });
     await onRefresh();
     setBusy("");
   };
 
   const verifyProperty = async (property, value) => {
     setBusy(property.id);
-    await base44.entities.Property.update(property.id, {
+    await entities.Property.update(property.id, {
       propertyVerified: value,
       propertyVerificationNote: notes[property.id] || "",
     });

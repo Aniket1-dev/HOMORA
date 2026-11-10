@@ -1,11 +1,8 @@
-# HOMORA Discover — Agent Guide
+# AGENTS.md
 
-This repository contains the HOMORA tenant-facing Discover frontend and a separately deployable custom Node.js API in `server/`.
+HOMORA Discover: React + Vite frontend on Supabase (Auth, Postgres + RLS, Storage). See `README.md` for setup.
 
-## Project conventions
-- Preserve existing Discover UI and workflows unless the user requests a redesign.
-- Keep frontend API access behind `src/api/base44Client.js` during the compatibility migration; the filename is temporary and should be renamed to `homoraClient.js` after all imports are migrated.
-- Backend modules belong under `server/src/modules/`; keep domain logic out of the Express entrypoint.
-- PostgreSQL schema changes belong in `server/prisma/schema.prisma` and committed Prisma migrations.
-- Never expose JWT secrets, database credentials, or privileged storage credentials to the browser.
-- Enforce ownership and role checks on the server; client-side route guards are not security controls.
+- Database access goes through `src/services/*`; do not scatter raw Supabase queries through components.
+- Schema/policies live in `supabase/migrations/`. Change the database via new migration files, and keep RLS in step with UI changes.
+- Never expose service-role keys in the browser; only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are public.
+- Route guards are UX only; enforce permissions with RLS and server-side functions.

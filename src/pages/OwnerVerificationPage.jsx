@@ -1,10 +1,11 @@
+import { uploadVerificationDocument } from "@/services/storage";
+import { useAuth } from "@/lib/AuthContext";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ShieldCheck, Upload } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import StatusPill from "@/components/ui-bits/StatusPill";
 import { OWNER_TYPES } from "@/lib/constants";
-import { getMyVerificationId, setMyVerificationId } from "@/lib/guestStore";
 
 const inputClass =
   "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-accent";
@@ -18,6 +19,7 @@ const documentTypes = [
 ];
 
 export default function OwnerVerificationPage() {
+  const { user } = useAuth();
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
@@ -36,19 +38,20 @@ export default function OwnerVerificationPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const storedId = getMyVerificationId();
-    if (!storedId) {
-      setLoading(false);
-      return;
-    }
-    base44.entities.OwnerVerification.get(storedId)
-      .then((found) => {
+    if (!user?.id) return;
+    entities.OwnerVerification.filter({ ownerId: user.id }, { limit: 1 })
+      .then((pageResult) => {
+        const found = pageResult.items[0];
+        if (!found) {
+          setRecord(null);
+          return;
+        }
         setRecord(found);
         setForm((prev) => ({ ...prev, ...found }));
       })
       .catch(() => setRecord(null))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user?.id]);
 
   const patch = (update) => setForm((prev) => ({ ...prev, ...update }));
 
@@ -58,8 +61,7 @@ export default function OwnerVerificationPage() {
     setError("");
     setUploading(true);
     try {
-      const result = await base44.integrations.Core.UploadPrivateFile({ file });
-      patch({ documentUri: result.file_uri });
+      patch({ documentUri: await uploadVerificationDocument(file) });
     } catch (err) {
       setError(err?.message || "Could not upload the document.");
     }
@@ -87,9 +89,8 @@ export default function OwnerVerificationPage() {
       status: "pending",
     };
     const saved = record
-      ? await base44.entities.OwnerVerification.update(record.id, payload)
-      : await base44.entities.OwnerVerification.create(payload);
-    setMyVerificationId(saved.id);
+      ? await entities.OwnerVerification.update(record.id, payload)
+      : await entities.OwnerVerification.create(payload);
     setRecord(saved);
     setSaving(false);
   };

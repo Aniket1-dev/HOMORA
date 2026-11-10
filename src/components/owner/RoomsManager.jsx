@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import Modal from "@/components/ui-bits/Modal";
 import StatusPill from "@/components/ui-bits/StatusPill";
 import { inr } from "@/lib/pricing";
@@ -18,8 +18,8 @@ export default function RoomsManager({ property, open, onClose, onRefresh }) {
   const load = async () => {
     if (!property) return;
     const [roomPage, bedPage] = await Promise.all([
-      base44.entities.Room.filter({ propertyId: property.id }, { sort: "roomNumber", limit: 60 }),
-      base44.entities.Bed.filter({ propertyId: property.id }, { sort: "bedNumber", limit: 200 }),
+      entities.Room.filter({ propertyId: property.id }, { sort: "roomNumber", limit: 60 }),
+      entities.Bed.filter({ propertyId: property.id }, { sort: "bedNumber", limit: 200 }),
     ]);
     setRooms(roomPage?.items || []);
     setBeds(bedPage?.items || []);
@@ -39,7 +39,7 @@ export default function RoomsManager({ property, open, onClose, onRefresh }) {
     const totalBeds = Number(form.totalBeds) || 1;
     if (totalBeds < 1) return setError("A room needs at least one bed.");
     setSaving(true);
-    const room = await base44.entities.Room.create({
+    const room = await entities.Room.create({
       propertyId: property.id,
       roomNumber: form.roomNumber.trim(),
       roomType: form.roomType,
@@ -52,7 +52,7 @@ export default function RoomsManager({ property, open, onClose, onRefresh }) {
       attachedBathroom: form.attachedBathroom,
       status: "available",
     });
-    await base44.entities.Bed.bulkCreate(
+    await entities.Bed.bulkCreate(
       Array.from({ length: totalBeds }).map((_, index) => ({
         propertyId: property.id,
         roomId: room.id,
@@ -62,10 +62,6 @@ export default function RoomsManager({ property, open, onClose, onRefresh }) {
         status: "available",
       }))
     );
-    await base44.entities.Property.update(property.id, {
-      totalBeds: (property.totalBeds || 0) + totalBeds,
-      availableBeds: (property.availableBeds || 0) + totalBeds,
-    });
     setForm({ roomNumber: "", roomType: "double", totalBeds: 2, rentPerBed: property.rent || "", ac: false, attachedBathroom: false });
     await load();
     await onRefresh?.();
@@ -73,7 +69,7 @@ export default function RoomsManager({ property, open, onClose, onRefresh }) {
   };
 
   const setBedStatus = async (bed, status) => {
-    await base44.entities.Bed.update(bed.id, { status });
+    await entities.Bed.update(bed.id, { status });
     await load();
   };
 

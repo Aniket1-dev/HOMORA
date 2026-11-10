@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import { useAuth } from "@/lib/AuthContext";
 
 const inputClass =
@@ -38,7 +38,7 @@ export default function ReviewsSection({ property, reviews, onCreated }) {
     if (form.text.trim().length < 10) return setError("Add a little detail (at least 10 characters).");
     setState("saving");
     try {
-      const created = await base44.entities.Review.create({
+      const created = await entities.Review.create({
         propertyId: property.id,
         propertyTitle: property.title,
         authorName: form.authorName.trim(),

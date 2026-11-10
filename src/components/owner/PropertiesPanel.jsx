@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import StatusPill from "@/components/ui-bits/StatusPill";
 import { inr } from "@/lib/pricing";
 
@@ -23,7 +23,7 @@ export default function PropertiesPanel({ properties, onRefresh, onManageRooms }
     const status = nextStatus[property.status];
     if (!status) return;
     setBusy(property.id);
-    await base44.entities.Property.update(property.id, { status });
+    await entities.Property.update(property.id, { status });
     await onRefresh();
     setBusy("");
   };

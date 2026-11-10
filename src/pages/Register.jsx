@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
-import { signInWithProvider } from "@/lib/authMfaFlow";
-import MfaFlow from "@/components/MfaFlow";
-import { MfaScreen } from "@/components/MfaParts";
+import { signUp, verifySignUpCode, resendSignUpCode, signInWithGoogle } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +19,6 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState("");
-  const [mfaChallenge, setMfaChallenge] = useState(null);
   const loginPath = "/login" + (safeReturnTo() !== "/" ? "?returnTo=" + encodeURIComponent(safeReturnTo()) : "");
 
   const handleSubmit = async (e) => {
@@ -34,7 +30,7 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      await base44.auth.register({ email, password });
+      await signUp(email, password);
       setShowOtp(true);
     } catch (err) {
       setError(err.message || "Registration failed");
@@ -47,14 +43,7 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      const result = await base44.auth.verifyOtp({ email, otpCode });
-      if (result?.mfa_required) {
-        setMfaChallenge(result);
-        return;
-      }
-      if (result?.access_token) {
-        base44.auth.setToken(result.access_token);
-      }
+      await verifySignUpCode(email, otpCode);
       window.location.href = safeReturnTo();
     } catch (err) {
       setError(err.message || "Invalid verification code");
@@ -66,7 +55,7 @@ export default function Register() {
   const handleResend = async () => {
     setError("");
     try {
-      await base44.auth.resendOtp(email);
+      await resendSignUpCode(email);
       toast({
         title: "Code sent",
         description: "Check your email for the new code.",
@@ -77,12 +66,9 @@ export default function Register() {
   };
 
   const handleGoogle = async () => {
-    try { await signInWithProvider("google", safeReturnTo()); }
+    try { await signInWithGoogle(safeReturnTo()); }
     catch (err) { setError(err.message || 'Unable to sign in with Google'); }
   };
-
-  // The account is verified; the second sign-in step replaces the whole page and finishes signing in.
-  if (mfaChallenge) return <MfaScreen><MfaFlow challenge={mfaChallenge} returnTo={safeReturnTo()} /></MfaScreen>;
 
   if (showOtp) {
     return (

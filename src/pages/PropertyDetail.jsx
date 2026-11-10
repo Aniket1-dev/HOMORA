@@ -1,9 +1,10 @@
+import { incrementPropertyViews } from "@/services/bookings";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   MapPin, ShieldCheck, Bookmark, BookmarkCheck, GitCompare, Flag, BedDouble, Bath, Ruler, Layers, CalendarClock, Check,
 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import Gallery from "@/components/property/Gallery";
 import CostBreakdown from "@/components/property/CostBreakdown";
 import NearbyPlaces from "@/components/property/NearbyPlaces";
@@ -46,7 +47,7 @@ export default function PropertyDetail() {
     let active = true;
     setLoading(true);
     (async () => {
-      const found = await base44.entities.Property.get(id).catch((e) =>
+      const found = await entities.Property.get(id).catch((e) =>
         e.status === 404 || e.response?.status === 404 ? null : Promise.reject(e)
       );
       if (!active) return;
@@ -59,10 +60,10 @@ export default function PropertyDetail() {
       setCompared(getCompare().includes(found.id));
 
       const [roomPage, bedPage, reviewPage, similarPage] = await Promise.all([
-        base44.entities.Room.filter({ propertyId: found.id }, { sort: "roomNumber", limit: 50 }),
-        base44.entities.Bed.filter({ propertyId: found.id }, { sort: "bedNumber", limit: 80 }),
-        base44.entities.Review.filter({ propertyId: found.id, status: "published" }, { sort: "-created_date", limit: 20 }),
-        base44.entities.Property.filter(
+        entities.Room.filter({ propertyId: found.id }, { sort: "roomNumber", limit: 50 }),
+        entities.Bed.filter({ propertyId: found.id }, { sort: "bedNumber", limit: 80 }),
+        entities.Review.filter({ propertyId: found.id, status: "published" }, { sort: "-created_date", limit: 20 }),
+        entities.Property.filter(
           { status: "published", city: found.city, category: found.category },
           { limit: 4 }
         ),
@@ -75,7 +76,7 @@ export default function PropertyDetail() {
 
       if (!sessionStorage.getItem(`nivas:viewed:${found.id}`)) {
         sessionStorage.setItem(`nivas:viewed:${found.id}`, "1");
-        base44.entities.Property.update(found.id, { views: (found.views || 0) + 1 }).catch(() => {});
+        incrementPropertyViews(found.id);
       }
     })();
     return () => {
@@ -105,7 +106,7 @@ export default function PropertyDetail() {
 
   const submitReport = async () => {
     setReportState("saving");
-    await base44.entities.Report.create({
+    await entities.Report.create({
       targetType: "property",
       targetId: property.id,
       targetTitle: property.title,

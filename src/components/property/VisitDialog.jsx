@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import Modal from "@/components/ui-bits/Modal";
 import { addMyRequest } from "@/lib/guestStore";
 
@@ -38,7 +38,7 @@ export default function VisitDialog({ open, onClose, property }) {
     if (!form.date) return setError("Choose a visit date.");
     setState("saving");
     try {
-      const created = await base44.entities.Visit.create({
+      const created = await entities.Visit.create({
         propertyId: property.id,
         propertyTitle: property.title,
         visitorName: form.visitorName.trim(),

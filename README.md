@@ -1,45 +1,61 @@
 # HOMORA Discover
 
-HOMORA Discover is the tenant-facing property discovery application. It now uses the HOMORA API rather than the Base44 SDK. The API is a separately deployable modular monolith backed by PostgreSQL.
+Accommodation marketplace (PGs, hostels, flats, rooms, roommates). React + Vite + Tailwind frontend on a Supabase backend
+(Auth, PostgreSQL with Row Level Security, Storage).
+
+## Setup
+
+1. `npm install`
+2. Create a Supabase project. In **SQL Editor**, run `supabase/migrations/0001_homora_schema.sql`
+   (or `supabase db push` with the Supabase CLI).
+3. `cp .env.example .env` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (Project Settings -> API).
+4. Dashboard steps that SQL cannot do (see "Manual dashboard steps" below).
+5. `npm run dev`
+
+Scripts: `npm run dev`, `npm run build`, `npm run lint`, `npm run typecheck`.
+
+## Manual dashboard steps
+
+- **Auth -> Providers -> Email**: enable; turn "Confirm email" on.
+- **Auth -> Email Templates -> Confirm signup**: include `{{ .Token }}` so users receive the 6-digit code the sign-up screen asks for.
+- **Auth -> URL Configuration**: set Site URL and add your domain(s) + `/reset-password` to Redirect URLs.
+- **Auth -> Providers -> Google** (optional): add OAuth client ID/secret; the Google button needs it.
+- **Auth -> Multi-Factor**: ensure TOTP is enabled (used by `/mfa`).
+- **First admin**: sign up, then in SQL Editor run
+  `insert into public.user_roles (user_id, role) select id, 'admin' from auth.users where email = 'you@example.com';`
+- Add rate limits / CAPTCHA for sign-up and OTP in Auth settings.
 
 ## Architecture
-- `src/`: existing React + Vite Discover experience.
-- `server/src/modules/`: custom API modules (identity, entity services, booking, uploads).
-- `server/prisma/schema.prisma`: HOMORA relational data model.
-- `server/docker-compose.yml`: local PostgreSQL for development.
 
-## Local setup
+- `src/lib/supabase/client.js` - single browser client (anon key only).
+- `src/services/entities.js` - table repositories (camelCase <-> snake_case, whitelisted columns).
+- `src/services/bookings.js` - `manage_booking` RPC (transactional booking/bed allocation), visit cancel, view counter.
+- `src/services/storage.js` - listing photos (public bucket) and KYC documents (private bucket, signed URLs).
+- `src/lib/auth.js`, `src/lib/AuthContext.jsx` - Supabase sessions, sign-up/in, Google, reset, TOTP.
+- `supabase/migrations/` - schema, RLS policies, RPCs, storage policies. Authorization lives here, not in route guards.
 
-### 1. Start PostgreSQL
-```bash
-cd server
-cp .env.example .env
-# Set DATABASE_URL and JWT_ACCESS_SECRET in server/.env
-docker compose up -d postgres
-npm install
-npx prisma generate
-npx prisma db push
-npm run dev
-```
+## Security notes
 
-### 2. Start Discover
-In another terminal, from the repository root:
-```bash
-cp .env.example .env
-npm install
-npm run dev
-```
-Vite serves the UI on `http://localhost:5173`; the API listens on `http://localhost:4000`. The Vite dev server proxies `/api` and `/uploads` to the API.
+- Never put the service-role key in `VITE_*` variables or frontend code.
+- Bookings can only be changed through `manage_booking`; prices and bed availability are decided in the database.
+- Guest enquiries/visits/bookings are identified by their unguessable id (stored in the visitor's browser); consider requiring sign-in.
 
-## Important configuration
-- Set a long random `JWT_ACCESS_SECRET`; do not commit secrets.
-- Configure `CORS_ORIGINS` and `PUBLIC_API_URL` for deployed domains.
-- Email OTP codes are logged to the API console in development. Production email delivery is not configured yet; connect an SMTP provider before enabling `REQUIRE_VERIFIED_EMAIL=true`.
-- Google OAuth, MFA, payment webhooks, chat delivery, and production object storage are not enabled in this first backend foundation.
-- Local uploads are for development only. Configure S3-compatible private/public buckets and signed URLs before production.
+## Database tests
 
-## Deployment
-Deploy `server/` as a persistent Node.js service/container with managed PostgreSQL. Deploy the Vite frontend as a static site and set `VITE_API_URL` to the API origin. Run Prisma migrations as a release step. Do not deploy the API as a collection of serverless functions; the modular monolith expects a long-running Node process.
+`supabase/tests/rls_test.py` applies the migration to a throwaway embedded Postgres (with a small Supabase shim) and checks
+RLS, column privileges, server-side booking pricing, 8-way concurrent booking of one bed, roommate contact privacy and
+storage policies. Run from the project root: `pip install pgserver psycopg2-binary && python supabase/tests/rls_test.py`.
+It does not replace testing against a real Supabase project.
 
-## Security status
-The API has JWT authentication and ownership/role checks on the initial entity routes. Before production, complete endpoint-specific authorization tests, rate limiting, email delivery, secure refresh-token rotation, audit events, upload malware scanning, and booking concurrency tests. Review the TODO/security checklist in `server/README.md`.
+## Known limitations / decisions to review
+
+- Schema is reconstructed from frontend usage, not recovered from the previous backend; review it before loading real data.
+  No production data was migrated - there was no export.
+- Two-step verification supports authenticator apps (TOTP) only. The old SMS-code option is not offered.
+- The Roommates page now requires sign-in (profiles hold personal data). The host console (`/host`) requires sign-in; the
+  admin tab additionally requires an `admin` row in `user_roles`.
+- Guest enquiries, visits and bookings still work without an account; they are identified by an unguessable id kept in the
+  visitor's browser. Add CAPTCHA/rate limits (Supabase Auth settings, or an Edge Function) before launch.
+- Reviews publish immediately (unchanged behaviour); an admin can hide them (`reviews.status = 'hidden'`) but there is no UI yet.
+- Payments are not implemented; booking payment status stays `offline_pending`.
+- Saved homes / compare list remain in browser storage.

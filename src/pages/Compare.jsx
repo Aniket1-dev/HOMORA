@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Copy, Trash2, X } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import EmptyState from "@/components/ui-bits/EmptyState";
 import { inr, monthlyCost, moveInCost } from "@/lib/pricing";
 import { CATEGORY_LABELS } from "@/lib/constants";
@@ -43,7 +43,7 @@ export default function Compare() {
       setLoading(false);
       return;
     }
-    base44.entities.Property.filter({ id: { $in: ids } }, { limit: 4 })
+    entities.Property.filter({ id: { $in: ids } }, { limit: 4 })
       .then((page) => {
         if (!active) return;
         const order = new Map(ids.map((id, index) => [id, index]));

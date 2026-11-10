@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import CostInputs from "@/components/calculator/CostInputs";
 import CostSummary from "@/components/calculator/CostSummary";
 
@@ -39,12 +39,12 @@ export default function Calculator() {
   const [selectedId, setSelectedId] = useState("");
 
   useEffect(() => {
-    base44.entities.Property.filter({ status: "published" }, { sort: "-created_date", limit: 50 }).then((page) =>
+    entities.Property.filter({ status: "published" }, { sort: "-created_date", limit: 50 }).then((page) =>
       setListings(page?.items || [])
     );
     const requested = new URLSearchParams(window.location.search).get("property");
     if (requested) {
-      base44.entities.Property.get(requested)
+      entities.Property.get(requested)
         .then((property) => {
           setValues(fromProperty(property));
           setSelectedId(property.id);

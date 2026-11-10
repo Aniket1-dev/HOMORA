@@ -1,17 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import PropertyCard from "@/components/PropertyCard";
 import EmptyState from "@/components/ui-bits/EmptyState";
 import StatusPill from "@/components/ui-bits/StatusPill";
 import { inr } from "@/lib/pricing";
-import {
-  addMyConnection,
-  getMyConnections,
-  getMyProfileId,
-  getMyRequests,
-  getSaved,
-} from "@/lib/guestStore";
+import { addMyConnection, getMyRequests as getSavedRequestIds, getSaved } from "@/lib/guestStore";
+import { useAuth } from "@/lib/AuthContext";
+import { cancelVisit as cancelVisitRequest, getMyRequests, manageBooking } from "@/services/bookings";
 
 const tabs = [
   { key: "bookings", label: "Bookings" },
@@ -29,6 +25,7 @@ const fetchByIds = async (entity, ids) => {
 };
 
 export default function MyActivity() {
+  const { user } = useAuth();
   const { search } = useLocation();
   const requestedTab = new URLSearchParams(search).get("tab");
   const [tab, setTab] = useState(
@@ -40,27 +37,16 @@ export default function MyActivity() {
 
   const load = async () => {
     setLoading(true);
-    const requests = getMyRequests();
-    const myProfileId = getMyProfileId();
-    const connectionIds = getMyConnections();
+    const requests = getSavedRequestIds();
 
-    const [bookings, visits, enquiries, saved, connections] = await Promise.all([
-      fetchByIds(base44.entities.Booking, requests.bookings || []),
-      fetchByIds(base44.entities.Visit, requests.visits || []),
-      fetchByIds(base44.entities.Enquiry, requests.enquiries || []),
-      fetchByIds(base44.entities.Property, getSaved()),
-      fetchByIds(base44.entities.RoommateConnection, connectionIds),
+    const [mine, saved] = await Promise.all([
+      user ? entities.RoommateProfile.filter({ ownerId: user.id }, { limit: 1 }).then((p) => p.items[0]) : null,
+      fetchByIds(entities.Property, getSaved()),
     ]);
-
-    let incoming = [];
-    if (myProfileId) {
-      const page = await base44.entities.RoommateConnection.filter({ toProfileId: myProfileId }, { limit: 50 });
-      incoming = page?.items || [];
-    }
-
-    const merged = [...connections, ...incoming].filter(
-      (connection, index, list) => list.findIndex((item) => item.id === connection.id) === index
-    );
+    const { bookings, visits, enquiries } = await getMyRequests(requests).catch(() => ({ bookings: [], visits: [], enquiries: [] }));
+    const merged = mine
+      ? (await entities.RoommateConnection.filter({ $or: [{ fromProfileId: mine.id }, { toProfileId: mine.id }] }, { limit: 100 })).items
+      : [];
 
     setData({ bookings, visits, enquiries, saved, connections: merged });
     setLoading(false);
@@ -68,7 +54,8 @@ export default function MyActivity() {
 
   useEffect(() => {
     load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   useEffect(() => {
     const next = new URLSearchParams(search).get("tab");
@@ -77,21 +64,21 @@ export default function MyActivity() {
 
   const cancelBooking = async (booking) => {
     setBusy(booking.id);
-    await base44.functions.invoke("manageBooking", { action: "cancel", bookingId: booking.id });
+    await manageBooking({ action: "cancel", bookingId: booking.id });
     await load();
     setBusy("");
   };
 
   const cancelVisit = async (visit) => {
     setBusy(visit.id);
-    await base44.entities.Visit.update(visit.id, { status: "cancelled" });
+    await cancelVisitRequest(visit.id);
     await load();
     setBusy("");
   };
 
   const acceptConnection = async (connection) => {
     setBusy(connection.id);
-    await base44.entities.RoommateConnection.update(connection.id, { status: "accepted" });
+    await entities.RoommateConnection.update(connection.id, { status: "accepted" });
     addMyConnection(connection.id);
     await load();
     setBusy("");

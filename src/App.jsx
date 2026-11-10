@@ -2,10 +2,10 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
-import PageNotFound from '@/lib/PageNotFound';
+import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import ScrollToTop from '@/components/ScrollToTop';
+import ScrollToTop from './components/ScrollToTop';
 import DiscoverShell from '@/components/discover/DiscoverShell';
 import HostShell from '@/components/host/HostShell';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -63,20 +63,22 @@ const AuthenticatedApp = () => {
         <Route path="/calculator" element={<Calculator />} />
         <Route path="/property/:id" element={<PropertyDetail />} />
         <Route path="/compare" element={<Compare />} />
-        <Route path="/roommates" element={<Roommates />} />
         <Route path="/dashboard" element={<MyActivity />} />
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/account" element={<Account />} />
+          <Route path="/roommates" element={<Roommates />} />
         </Route>
       </Route>
 
       {/* HOMORA Host — the owner console, a separate app on the same backend */}
-      <Route path="/host" element={<HostShell />}>
-        <Route index element={<OwnerDashboard />} />
-        <Route path="listings/new" element={<ListingWizard />} />
-        <Route path="listings/:id/edit" element={<ListingWizard />} />
-        <Route path="verification" element={<OwnerVerificationPage />} />
-        <Route path="admin" element={<Admin />} />
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login?returnTo=/host" replace />} />}>
+        <Route path="/host" element={<HostShell />}>
+          <Route index element={<OwnerDashboard />} />
+          <Route path="listings/new" element={<ListingWizard />} />
+          <Route path="listings/:id/edit" element={<ListingWizard />} />
+          <Route path="verification" element={<OwnerVerificationPage />} />
+          <Route path="admin" element={<Admin />} />
+        </Route>
       </Route>
 
       <Route path="/login" element={<Login />} />

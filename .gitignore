@@ -1,8 +1,6 @@
 #env
 .env
 .env.*
-!.env.example
-!**/.env.example
 
 # Logs
 /logs
@@ -37,9 +35,7 @@ dist-ssr
 .env
 .vite
 
-# Local link to a Base44 app, written by `base44 link`
-base44/.app.jsonc
-server/.env
-server/node_modules/
-server/uploads/*
-!server/uploads/.gitkeep
+# Local environment (never commit real keys)
+.env
+.env.local
+supabase/.temp

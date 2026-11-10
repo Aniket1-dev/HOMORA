@@ -1,126 +1,103 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2, Lock, Mail } from "lucide-react";
-import GoogleIcon from "@/components/GoogleIcon";
-import MfaFlow from "@/components/MfaFlow";
-import MfaManage from "@/components/MfaManage";
-import { MfaHeader, MfaNotice, MfaScreen, useAppInfo } from "@/components/MfaParts";
-import { finishSignIn, resumeMfa, signInToManageMfa, signInWithProvider } from "@/lib/authMfaFlow";
-import { safeReturnTo } from "@/lib/authReturnTo";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Loader2, ShieldCheck } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
+import { confirmTotpEnrollment, enrollTotp, listTotpFactors, removeTotpFactor } from "@/lib/auth";
 
-const PROVIDERS = [
-  { id: "google", flag: "enable_google_login", name: "Google" },
-  { id: "microsoft", flag: "enable_microsoft_login", name: "Microsoft" },
-  { id: "facebook", flag: "enable_facebook_login", name: "Facebook" },
-  { id: "apple", flag: "enable_apple_login", name: "Apple" },
-];
-
-// /mfa: finishes a Google, Microsoft, Facebook, Apple or SSO sign-in that needs a second step
-// (?mfa_code=…), and opened directly it is the two-factor authentication settings page.
+// /mfa - two-step verification settings (authenticator app). SMS codes are not offered.
 export default function Mfa() {
-  const returnTo = safeReturnTo();
-  const [challenge, setChallenge] = useState(null);
-  const [managing, setManaging] = useState(null);
-  const [resuming, setResuming] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    resumeMfa()
-      .then((result) => {
-        // A remembered device signs in straight away; otherwise continue the second step here.
-        if (result?.access_token) return finishSignIn(result.access_token, returnTo);
-        if (result) setChallenge(result);
-        setResuming(false);
-      })
-      .catch((err) => { setError(err); setResuming(false); });
-  }, []);
-
-  if (resuming) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-  return (
-    <MfaScreen>
-      {managing ? <MfaManage session={managing} returnTo={returnTo} />
-        : challenge ? <MfaFlow challenge={challenge} returnTo={returnTo} onManage={setManaging} />
-        : <ConfirmIdentity returnTo={returnTo} onChallenge={setChallenge} initialError={error} />}
-    </MfaScreen>
-  );
-}
-
-// Changing two-factor settings starts with a fresh sign-in, then a code from an enrolled method.
-function ConfirmIdentity({ returnTo, onChallenge, initialError }) {
-  const info = useAppInfo();
-  const options = info ? info.auth_config || {} : null;
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(initialError);
+  const { isAuthenticated, isLoadingAuth } = useAuth();
+  const [factors, setFactors] = useState(null);
+  const [setup, setSetup] = useState(null);
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const submit = async (e) => {
-    e.preventDefault();
-    setError(null);
+  const refresh = () => listTotpFactors().then((all) => setFactors(all.filter((f) => f.status === "verified"))).catch((e) => setError(e.message));
+
+  useEffect(() => {
+    if (isAuthenticated) refresh();
+  }, [isAuthenticated]);
+
+  const start = async () => {
+    setError("");
     setBusy(true);
     try {
-      onChallenge(await signInToManageMfa(email, password));
-    } catch (err) {
-      setError(err);
-      setBusy(false);
+      setSetup(await enrollTotp());
+    } catch (e) {
+      setError(e.message);
+    }
+    setBusy(false);
+  };
+
+  const confirm = async () => {
+    setError("");
+    setBusy(true);
+    try {
+      await confirmTotpEnrollment(setup.factorId, code);
+      setSetup(null);
+      setCode("");
+      await refresh();
+    } catch (e) {
+      setError(e.message || "That code didn't work.");
+    }
+    setBusy(false);
+  };
+
+  const remove = async (id) => {
+    setError("");
+    try {
+      await removeTotpFactor(id);
+      await refresh();
+    } catch (e) {
+      setError(e.message);
     }
   };
 
-  const withProvider = (provider) => signInWithProvider(provider, returnTo, { manage: true }).catch(setError);
-  const providers = options ? PROVIDERS.filter((provider) => options[provider.flag] ?? provider.id === "google") : [];
+  if (isLoadingAuth) return <div className="min-h-screen grid place-items-center"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>;
+  if (!isAuthenticated) {
+    return <div className="min-h-screen grid place-items-center text-sm">Please <Link className="mx-1 text-primary underline" to="/login?returnTo=/mfa">log in</Link> to manage two-step verification.</div>;
+  }
 
   return (
-    <>
-      <MfaHeader title={info && `Welcome to ${info.name || "the app"}`} description="Sign in to continue" />
-      <MfaNotice error={error} />
-      {!options && !error && <Loader2 className="mx-auto w-6 h-6 animate-spin text-muted-foreground" />}
-      {options && (
-        <div className="space-y-4">
-          {providers.map((provider) => (
-            <Button key={provider.id} variant="outline" className="w-full h-12 text-sm font-medium" onClick={() => withProvider(provider.id)}>
-              {provider.id === "google" && <GoogleIcon className="w-5 h-5 mr-2" />}
-              Continue with {provider.name}
-            </Button>
-          ))}
-          {(options.enable_sso_login || options.use_workspace_sso) && (
-            <Button variant="outline" className="w-full h-12 text-sm font-medium" onClick={() => withProvider("sso")}>
-              Continue with SSO
-            </Button>
-          )}
-          {options.enable_username_password && (
-            <form onSubmit={submit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="mfa-email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                  <Input id="mfa-email" type="email" autoComplete="email" placeholder="you@example.com" value={email}
-                    onChange={(e) => setEmail(e.target.value)} className="pl-10 h-12" required />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="mfa-password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                  <Input id="mfa-password" type="password" autoComplete="current-password" placeholder="••••••••" value={password}
-                    onChange={(e) => setPassword(e.target.value)} className="pl-10 h-12" required />
-                </div>
-              </div>
-              <Button type="submit" className="w-full h-12 font-medium" disabled={busy}>
-                {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Continue
-              </Button>
-            </form>
-          )}
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
+      <div className="w-full max-w-md bg-card rounded-2xl shadow-sm border border-border p-8 space-y-5">
+        <div className="text-center space-y-1">
+          <ShieldCheck className="w-8 h-8 mx-auto text-primary" />
+          <h1 className="text-xl font-semibold">Two-step verification</h1>
+          <p className="text-sm text-muted-foreground">Protect your account with an authenticator app.</p>
         </div>
-      )}
-    </>
+        {error && <div role="alert" className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
+        {setup ? (
+          <div className="space-y-4 session-record-block">
+            <p className="text-sm">Scan this QR code with your authenticator app, then enter the 6-digit code.</p>
+            <img src={setup.qrCode} alt="Authenticator QR code" className="mx-auto h-44 w-44" />
+            <p className="text-center text-xs text-muted-foreground break-all">Or enter this key: {setup.secret}</p>
+            <div className="flex justify-center">
+              <InputOTP maxLength={6} value={code} onChange={setCode} onComplete={confirm}>
+                <InputOTPGroup>{[0, 1, 2, 3, 4, 5].map((i) => <InputOTPSlot key={i} index={i} />)}</InputOTPGroup>
+              </InputOTP>
+            </div>
+            <Button className="w-full" disabled={busy || code.length < 6} onClick={confirm}>Confirm</Button>
+          </div>
+        ) : factors === null ? (
+          <div className="flex justify-center"><Loader2 className="w-5 h-5 animate-spin" /></div>
+        ) : factors.length ? (
+          <div className="space-y-3">
+            {factors.map((factor) => (
+              <div key={factor.id} className="flex items-center justify-between rounded-xl border border-border p-3 text-sm">
+                <span>Authenticator app</span>
+                <Button variant="outline" size="sm" onClick={() => remove(factor.id)}>Remove</Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Button className="w-full h-12" disabled={busy} onClick={start}>Set up authenticator app</Button>
+        )}
+        <div className="text-center"><Link to="/account" className="text-sm text-muted-foreground hover:underline">Back to account</Link></div>
+      </div>
+    </div>
   );
 }

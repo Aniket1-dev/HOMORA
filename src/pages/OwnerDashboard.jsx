@@ -1,6 +1,7 @@
+import { useAuth } from "@/lib/AuthContext";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import StatCard from "@/components/ui-bits/StatCard";
 import PropertiesPanel from "@/components/owner/PropertiesPanel";
 import EnquiriesPanel from "@/components/owner/EnquiriesPanel";
@@ -17,6 +18,7 @@ const tabs = [
 ];
 
 export default function OwnerDashboard() {
+  const { user } = useAuth();
   const [tab, setTab] = useState("overview");
   const [data, setData] = useState({ properties: [], enquiries: [], visits: [], bookings: [] });
   const [availableBeds, setAvailableBeds] = useState(0);
@@ -25,11 +27,11 @@ export default function OwnerDashboard() {
 
   const load = useCallback(async () => {
     const [propertyPage, enquiryPage, visitPage, bookingPage, beds] = await Promise.all([
-      base44.entities.Property.list({ sort: "-created_date", limit: 100 }),
-      base44.entities.Enquiry.list({ sort: "-created_date", limit: 100 }),
-      base44.entities.Visit.list({ sort: "-created_date", limit: 100 }),
-      base44.entities.Booking.list({ sort: "-created_date", limit: 100 }),
-      base44.entities.Bed.count({ status: "available" }),
+      entities.Property.filter({ ownerId: user?.id }, { sort: "-created_date", limit: 100 }),
+      entities.Enquiry.list({ sort: "-created_date", limit: 100 }),
+      entities.Visit.list({ sort: "-created_date", limit: 100 }),
+      entities.Booking.list({ sort: "-created_date", limit: 100 }),
+      Promise.resolve(0),
     ]);
     setData({
       properties: propertyPage?.items || [],
@@ -37,9 +39,10 @@ export default function OwnerDashboard() {
       visits: visitPage?.items || [],
       bookings: bookingPage?.items || [],
     });
-    setAvailableBeds(beds || 0);
+    const ids = (propertyPage?.items || []).map((property) => property.id);
+    setAvailableBeds(ids.length ? await entities.Bed.count({ status: "available", propertyId: { $in: ids } }) : (beds || 0));
     setLoading(false);
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     load();

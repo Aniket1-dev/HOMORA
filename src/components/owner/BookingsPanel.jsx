@@ -1,5 +1,5 @@
+import { manageBooking } from "@/services/bookings";
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
 import StatusPill from "@/components/ui-bits/StatusPill";
 import { inr } from "@/lib/pricing";
 
@@ -10,7 +10,7 @@ export default function BookingsPanel({ bookings, onRefresh }) {
   const act = async (booking, action) => {
     setBusy(booking.id);
     setError("");
-    const response = await base44.functions.invoke("manageBooking", { action, bookingId: booking.id });
+    const response = await manageBooking({ action, bookingId: booking.id });
     if (response.data?.error) setError(response.data.error);
     await onRefresh();
     setBusy("");

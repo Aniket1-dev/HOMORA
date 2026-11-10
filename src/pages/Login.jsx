@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { loginWithMfa } from "@/lib/authMfa";
-import { signInWithProvider } from "@/lib/authMfaFlow";
-import MfaFlow from "@/components/MfaFlow";
-import { MfaScreen } from "@/components/MfaParts";
+import { signInWithPassword, signInWithGoogle } from "@/lib/auth";
+import MfaChallenge from "@/components/MfaChallenge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,8 +16,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [mfaChallenge, setMfaChallenge] = useState(null);
-  // Post-login destination (e.g. the MCP OAuth consent page sends users here
-  // with returnTo so the grant flow can resume). Same-origin paths only.
+  // Post-login destination. Same-origin paths only.
   const returnTo = safeReturnTo();
 
   const handleSubmit = async (e) => {
@@ -27,7 +24,7 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      const result = await loginWithMfa(email, password);
+      const result = await signInWithPassword(email, password);
       if (result.mfa_required) {
         setMfaChallenge(result);
         return;
@@ -41,12 +38,12 @@ export default function Login() {
   };
 
   const handleGoogle = async () => {
-    try { await signInWithProvider("google", returnTo); }
+    try { await signInWithGoogle(returnTo); }
     catch (err) { setError(err.message || 'Unable to sign in with Google'); }
   };
 
   // The second sign-in step (authenticator app or text message) replaces the whole page.
-  if (mfaChallenge) return <MfaScreen><MfaFlow challenge={mfaChallenge} returnTo={returnTo} /></MfaScreen>;
+  if (mfaChallenge) return <MfaChallenge factorId={mfaChallenge.factorId} returnTo={returnTo} />;
 
   return (
     <AuthLayout

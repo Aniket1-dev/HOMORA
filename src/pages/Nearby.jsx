@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { MapPin } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyMap from "@/components/nearby/PropertyMap";
 import NearbyControls from "@/components/nearby/NearbyControls";
@@ -22,7 +22,7 @@ export default function Nearby() {
 
   useEffect(() => {
     let active = true;
-    base44.entities.Property.filter({ status: "published" }, { limit: 100 }).then((page) => {
+    entities.Property.filter({ status: "published" }, { limit: 100 }).then((page) => {
       if (!active) return;
       setProperties((page?.items || []).filter((item) => typeof item.lat === "number" && typeof item.lng === "number"));
       setLoading(false);

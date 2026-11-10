@@ -1,5 +1,6 @@
+import { signedDocumentUrl } from "@/services/storage";
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { entities } from "@/services/entities";
 import StatusPill from "@/components/ui-bits/StatusPill";
 import { OWNER_TYPES } from "@/lib/constants";
 
@@ -9,14 +10,14 @@ export default function VerificationsPanel({ verifications, onRefresh }) {
 
   const setStatus = async (record, status) => {
     setBusy(record.id);
-    await base44.entities.OwnerVerification.update(record.id, {
+    await entities.OwnerVerification.update(record.id, {
       status,
       adminNote: notes[record.id] ?? record.adminNote ?? "",
     });
     if (status === "approved") {
-      const properties = await base44.entities.Property.filter({ ownerEmail: record.email }, { limit: 50 });
+      const properties = await entities.Property.filter({ ownerId: record.ownerId }, { limit: 50 });
       for (const property of properties?.items || []) {
-        await base44.entities.Property.update(property.id, { ownerVerified: true });
+        await entities.Property.update(property.id, { ownerVerified: true });
       }
     }
     await onRefresh();
@@ -47,7 +48,11 @@ export default function VerificationsPanel({ verifications, onRefresh }) {
               </p>
               <p className="mt-1 text-[11px] text-muted-foreground">
                 Document: {record.documentType?.replace(/_/g, " ")} ·{" "}
-                {record.documentUri ? "attached (private)" : "not attached"}
+                {record.documentUri ? (
+                  <button type="button" className="underline underline-offset-2" onClick={async () => window.open(await signedDocumentUrl(record.documentUri), "_blank", "noopener")}>
+                    view document (private, expires in 2 min)
+                  </button>
+                ) : "not attached"}
               </p>
             </div>
             <StatusPill status={record.status} />

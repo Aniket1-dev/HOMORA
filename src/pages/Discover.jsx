@@ -37,9 +37,10 @@ export default function Discover() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
   const urlCategory = searchParams.get("category") || "";
+  const urlMaxRent = searchParams.get("maxRent") || "";
 
   const [term, setTerm] = useState(query);
-  const [filters, setFilters] = useState({ ...emptyFilters, category: urlCategory });
+  const [filters, setFilters] = useState({ ...emptyFilters, category: urlCategory, maxRent: urlMaxRent });
   const [sort, setSort] = useState("relevance");
   const [items, setItems] = useState([]);
   const [cursor, setCursor] = useState(null);

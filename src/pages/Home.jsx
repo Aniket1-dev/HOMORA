@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowUpRight, BadgeCheck, MapPin, ShieldCheck, Sparkles, ExternalLink } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BadgeCheck, MapPin, ShieldCheck, Sparkles, ExternalLink, X, CheckCircle2 } from "lucide-react";
 import HeroSearch from "@/components/home/HeroSearch";
 import CategoryRail from "@/components/home/CategoryRail";
 import RoommateSpotlight from "@/components/home/RoommateSpotlight";
@@ -21,6 +21,18 @@ export default function Home() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("homora:welcome-seen")) return;
+    const timer = window.setTimeout(() => setShowWelcome(true), 6500);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const closeWelcome = () => {
+    sessionStorage.setItem("homora:welcome-seen", "1");
+    setShowWelcome(false);
+  };
 
   useEffect(() => {
     let active = true;
@@ -41,6 +53,7 @@ export default function Home() {
   return (
     <div className="hm-home">
       <HeroSearch />
+      <section className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-8"><div className="hm-promo-ribbon"><div className="hm-promo-copy"><span className="hm-promo-label">HOMORA PICKS · NORTH INDIA</span><h2>Moving for college or work?</h2><p>Find a place close to your campus, office and everyday essentials.</p><Link to="/discover?q=Ghaziabad" className="hm-promo-link">Explore nearby stays <ArrowRight className="h-4 w-4" /></Link></div><div className="hm-promo-photo" role="img" aria-label="Bright, welcoming modern apartment interior" /></div></section>
       <div className="hm-assurance-strip"><div className="mx-auto grid max-w-7xl gap-3 px-4 py-4 sm:grid-cols-3 sm:px-6 lg:px-8">
         <div><ShieldCheck /><span><b>Verified listings</b><small>Reviewed before they go live</small></span></div>
         <div><BadgeCheck /><span><b>Know the full cost</b><small>Rent and deposit, clearly shown</small></span></div>
@@ -71,7 +84,7 @@ export default function Home() {
       <TrustSection />
 
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="hm-partner-banner">
+        <div className="hm-partner-banner" style={{ backgroundImage: "linear-gradient(100deg,rgba(39,25,76,.96) 0%,rgba(70,43,120,.90) 55%,rgba(70,43,120,.48) 100%),url(https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=85)", backgroundSize: "cover", backgroundPosition: "center" }}>
           <div className="relative z-10 max-w-2xl"><span className="hm-banner-tag">FOR PROPERTY OWNERS</span><h2 className="mt-4 text-[27px] font-bold leading-tight tracking-tight text-white sm:text-[38px]">Your property deserves<br className="hidden sm:block" /> the right people.</h2><p className="mt-3 max-w-lg text-sm leading-6 text-white/75">Reach genuine tenants, manage enquiries and keep every listing organised with HOMORA Partner.</p><div className="mt-7 flex flex-wrap gap-3">{partnerUrl ? <a href={partnerUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-violet-800 hover:bg-violet-50">List your property <ExternalLink className="h-4 w-4" /></a> : <span className="rounded-full border border-white/30 px-5 py-3 text-sm text-white/80">Partner portal coming soon</span>}<Link to="/discover" className="rounded-full border border-white/30 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">Explore HOMORA <ArrowRight className="ml-1 inline h-4 w-4" /></Link></div></div>
           <div className="hm-banner-orbit"><div><span>H</span><small>HOMORA</small></div></div>
         </div>

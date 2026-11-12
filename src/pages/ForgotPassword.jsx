@@ -11,17 +11,20 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
     try {
-      await requestPasswordReset(email);
-    } catch {
-      // Always show success regardless
+      await requestPasswordReset(email.trim());
+      setSent(true);
+    } catch (err) {
+      // Do not silently claim success when the provider rejected the request.
+      setError(err?.message || "Unable to send the reset email. Please try again.");
     } finally {
       setLoading(false);
-      setSent(true);
     }
   };
 
@@ -29,17 +32,27 @@ export default function ForgotPassword() {
     <AuthLayout
       icon={Mail}
       title="Reset password"
-      subtitle="We'll send you a link to reset it"
+      subtitle="We'll send you a secure link to choose a new password"
       footer={
         <Link to="/login" className="text-primary font-medium hover:underline">
           <ArrowLeft className="w-3 h-3 inline mr-1" />Back to log in
         </Link>
       }
     >
+      {error && (
+        <div role="alert" className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+          {error}
+        </div>
+      )}
       {sent ? (
-        <p className="text-sm text-foreground text-center">
-          If an account exists with that email, you'll receive a password reset link shortly.
-        </p>
+        <div className="space-y-3 text-center">
+          <p className="text-sm text-foreground">
+            If an account exists with that email, a password reset link will arrive shortly.
+          </p>
+          <Button type="button" variant="outline" className="w-full" onClick={() => setSent(false)}>
+            Send another link
+          </Button>
+        </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -60,14 +73,7 @@ export default function ForgotPassword() {
             </div>
           </div>
           <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              "Send reset link"
-            )}
+            {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending...</> : "Send reset link"}
           </Button>
         </form>
       )}

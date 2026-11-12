@@ -90,5 +90,24 @@ export default function Home() {
         </div>
       </section>
     </div>
+      {showWelcome && (
+        <div className="hm-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeWelcome(); }}>
+          <section className="hm-welcome-modal" role="dialog" aria-modal="true" aria-labelledby="hm-welcome-title">
+            <button type="button" className="hm-modal-close" onClick={closeWelcome} aria-label="Close welcome popup"><X className="h-5 w-5" /></button>
+            <div className="hm-modal-photo" />
+            <div className="p-6 sm:p-7">
+              <span className="hm-modal-kicker"><Sparkles className="h-3.5 w-3.5" /> A BETTER WAY TO FIND YOUR STAY</span>
+              <h2 id="hm-welcome-title" className="mt-3 text-[25px] font-extrabold leading-tight tracking-tight text-slate-900">Your next place<br />is closer than you think.</h2>
+              <p className="mt-3 text-[13px] leading-6 text-slate-500">Explore hostels, PGs and homes with clear pricing and verified partner listings.</p>
+              <div className="mt-4 grid gap-2 text-[11px] font-semibold text-slate-600 sm:grid-cols-2">
+                <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-600" />Reviewed listings</span>
+                <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-600" />Transparent monthly costs</span>
+              </div>
+              <Link to="/discover" onClick={closeWelcome} className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-violet-200/70">Explore stays <ArrowRight className="h-4 w-4" /></Link>
+              <button type="button" onClick={closeWelcome} className="mt-3 w-full py-2 text-xs font-semibold text-slate-400 hover:text-slate-700">Maybe later</button>
+            </div>
+          </section>
+        </div>
+      )}
   );
 }

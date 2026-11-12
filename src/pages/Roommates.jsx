@@ -53,6 +53,14 @@ export default function Roommates() {
     load();
   }, [load]);
 
+  useEffect(() => {
+    const onSharedChange = (event) => {
+      if (["roommate_profiles", "roommate_connections"].includes(event.detail?.table)) load();
+    };
+    window.addEventListener("homora:realtime-change", onSharedChange);
+    return () => window.removeEventListener("homora:realtime-change", onSharedChange);
+  }, [load]);
+
   const createProfile = async (payload) => {
     const created = await entities.RoommateProfile.create(payload);
     await load();

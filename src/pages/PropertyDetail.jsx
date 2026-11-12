@@ -104,6 +104,26 @@ export default function PropertyDetail() {
     return () => { active = false; supabase.removeChannel(channel); };
   }, [id]);
 
+  // Property moderation and review changes made in Admin are reflected in this view.
+  useEffect(() => {
+    const onSharedChange = async (event) => {
+      const payload = event.detail || {};
+      const row = payload.new || {};
+      const previous = payload.old || {};
+      if (payload.table === "properties" && (row.id === id || previous.id === id)) {
+        const found = await entities.Property.get(id).catch(() => null);
+        setProperty(found);
+        if (!found) setLoading(false);
+      }
+      if (payload.table === "reviews" && (row.property_id === id || previous.property_id === id)) {
+        const page = await entities.Review.filter({ propertyId: id, status: "published" }, { sort: "-created_date", limit: 20 });
+        setReviews(page?.items || []);
+      }
+    };
+    window.addEventListener("homora:realtime-change", onSharedChange);
+    return () => window.removeEventListener("homora:realtime-change", onSharedChange);
+  }, [id]);
+
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-10">

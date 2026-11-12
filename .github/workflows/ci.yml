@@ -1,0 +1,26 @@
+name: HOMORA Discover CI
+
+on:
+  pull_request:
+    branches: [supabase]
+  push:
+    branches: [supabase]
+
+concurrency:
+  group: discover-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - run: npm run build

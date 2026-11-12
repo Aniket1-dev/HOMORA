@@ -22,13 +22,23 @@ export default function Nearby() {
 
   useEffect(() => {
     let active = true;
-    entities.Property.filter({ status: "published" }, { limit: 100 }).then((page) => {
-      if (!active) return;
-      setProperties((page?.items || []).filter((item) => typeof item.lat === "number" && typeof item.lng === "number"));
-      setLoading(false);
-    });
+    const loadProperties = async () => {
+      try {
+        const page = await entities.Property.filter({ status: "published" }, { limit: 100 });
+        if (!active) return;
+        setProperties((page?.items || []).filter((item) => typeof item.lat === "number" && typeof item.lng === "number"));
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    const onSharedChange = (event) => {
+      if (event.detail?.table === "properties") loadProperties().catch((error) => console.error("Nearby listings refresh failed", error));
+    };
+    loadProperties().catch((error) => console.error("Nearby listings load failed", error));
+    window.addEventListener("homora:realtime-change", onSharedChange);
     return () => {
       active = false;
+      window.removeEventListener("homora:realtime-change", onSharedChange);
     };
   }, []);
 

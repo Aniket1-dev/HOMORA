@@ -160,3 +160,47 @@
     scroll-behavior: auto !important;
   }
 }
+/* HOMORA Discover — premium booking experience */
+.hm-home { background:#fff; color:#17142a; }
+.hm-hero { background:linear-gradient(115deg,#f8f6ff 0%,#f4f1ff 48%,#f8fbff 100%); }
+.hm-hero-glow { position:absolute; width:720px;height:520px;right:-180px;top:-260px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.16),transparent 68%);pointer-events:none; }
+.hm-eyebrow,.hm-section-kicker { font-size:10px;font-weight:800;letter-spacing:.17em;color:#7652c8; }
+.hm-eyebrow { display:inline-flex;align-items:center;gap:9px;border:1px solid #e7defb;background:rgba(255,255,255,.72);border-radius:99px;padding:9px 13px; }
+.hm-live-dot { width:7px;height:7px;border-radius:50%;background:#20b486;box-shadow:0 0 0 4px rgba(32,180,134,.12); }
+.hm-gradient-text { background:linear-gradient(100deg,#7650d5,#a16be8 55%,#527bd5);-webkit-background-clip:text;background-clip:text;color:transparent; }
+.hm-trust-chip { display:inline-flex;align-items:center;gap:7px;border:1px solid #e8e2f5;background:rgba(255,255,255,.72);border-radius:99px;padding:8px 11px;font-size:11px;font-weight:600;color:#5c5870; }
+.hm-trust-chip span { color:#16a37a;font-weight:900; }
+.hm-search-wrap { border:1px solid rgba(226,218,245,.95);border-radius:25px;background:#fff;padding:22px;box-shadow:0 24px 70px -35px rgba(58,37,105,.32),0 3px 12px rgba(38,24,70,.04); }
+.hm-search-icon { display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:#f1ebff;color:#7447d3; }
+.hm-field { display:flex;align-items:center;gap:12px;min-width:0;border:1px solid #e9e6ef;border-radius:15px;background:#fff;padding:12px 13px;transition:border-color .2s,box-shadow .2s; }
+.hm-field:focus-within { border-color:#9c7be8;box-shadow:0 0 0 3px rgba(124,84,210,.1); }
+.hm-field-label { display:block;margin-bottom:4px;font-size:9px;font-weight:800;letter-spacing:.12em;color:#9993a8; }
+.hm-field input,.hm-field select { display:block;width:100%;min-width:0;background:transparent;color:#28243a;font-size:12px;font-weight:600;outline:none; }
+.hm-field input::placeholder { color:#aaa5b4;font-weight:400; }
+.hm-search-button { display:flex;width:100%;align-items:center;gap:10px;border-radius:15px;background:linear-gradient(100deg,#7547d4,#8a5be4);padding:15px 17px;color:#fff;font-size:13px;font-weight:800;box-shadow:0 9px 20px -12px rgba(105,65,195,.8);transition:transform .2s,filter .2s; }
+.hm-search-button:hover { transform:translateY(-1px);filter:brightness(1.04); }
+.hm-place-chip { border:1px solid #ebe7f2;border-radius:99px;padding:6px 10px;color:#625d70;font-size:10px;font-weight:600;transition:all .2s; }
+.hm-place-chip:hover { border-color:#bba6ee;background:#f8f5ff;color:#7147c9; }
+.hm-assurance-strip { border-bottom:1px solid #f0edf5;border-top:1px solid #f0edf5;background:#fff; }
+.hm-assurance-strip>div { display:grid;grid-template-columns:1fr; }
+.hm-assurance-strip>div>div { display:flex;align-items:center;gap:12px;padding:5px 0; }
+.hm-assurance-strip svg { width:19px;height:19px;color:#8058d4; }
+.hm-assurance-strip b,.hm-assurance-strip small { display:block; }
+.hm-assurance-strip b { font-size:11px;color:#302b40; }
+.hm-assurance-strip small { margin-top:2px;font-size:10px;color:#8c8798; }
+.hm-category-card { position:relative;display:block;min-height:145px;border:1px solid #eeeaf4;border-radius:19px;background:#fff;padding:17px;transition:transform .22s,box-shadow .22s,border-color .22s; }
+.hm-category-card:hover { transform:translateY(-3px);border-color:#ded2f7;box-shadow:0 16px 35px -25px rgba(64,43,110,.35); }
+.hm-category-icon { display:grid;width:42px;height:42px;place-items:center;border-radius:14px; }
+.hm-category-icon.lavender { background:#f1eaff;color:#8054d8; }.hm-category-icon.mint { background:#e6f8f2;color:#159b77; }.hm-category-icon.peach { background:#fff0e7;color:#dc8147; }.hm-category-icon.blue { background:#eaf2ff;color:#4d7dc8; }.hm-category-icon.rose { background:#fff0f4;color:#c65d83; }
+.hm-destinations { background:#f8f7fb;border-top:1px solid #f0edf5;border-bottom:1px solid #f0edf5; }
+.hm-city-card { position:relative;display:flex;min-height:190px;align-items:flex-end;justify-content:space-between;overflow:hidden;border-radius:20px;background-position:center;background-size:cover;padding:17px;color:#fff;transition:transform .25s,box-shadow .25s; }
+.hm-city-card:hover { transform:translateY(-3px);box-shadow:0 18px 35px -22px rgba(25,18,43,.55); }
+.hm-city-card b,.hm-city-card small { display:block; }.hm-city-card b { font-size:19px;font-weight:800;letter-spacing:-.03em; }.hm-city-card small { margin-top:3px;font-size:10px;color:rgba(255,255,255,.78); }
+.hm-partner-banner { position:relative;overflow:hidden;border-radius:28px;background:linear-gradient(115deg,#30205c 0%,#5d3a9e 54%,#7651bd 100%);padding:34px 28px; }
+.hm-banner-tag { display:inline-flex;border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:7px 11px;color:#e8ddff;font-size:9px;font-weight:800;letter-spacing:.15em; }
+.hm-banner-orbit { position:absolute;right:5%;top:50%;display:none;width:220px;height:220px;transform:translateY(-50%);align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.18);border-radius:50%;box-shadow:0 0 0 28px rgba(255,255,255,.035),0 0 0 58px rgba(255,255,255,.025); }
+.hm-banner-orbit>div { display:grid;width:104px;height:104px;place-content:center;border:1px solid rgba(255,255,255,.35);border-radius:30px;background:rgba(255,255,255,.12);text-align:center;backdrop-filter:blur(8px); }
+.hm-banner-orbit span { color:#fff;font-size:42px;font-weight:900;line-height:1; }.hm-banner-orbit small { margin-top:5px;color:#e6dafa;font-size:8px;font-weight:800;letter-spacing:.2em; }
+@media(min-width:640px){.hm-assurance-strip>div{grid-template-columns:repeat(3,minmax(0,1fr));}.hm-assurance-strip>div>div{justify-content:center;padding:4px 0;}.hm-partner-banner{padding:48px;}}
+@media(min-width:1024px){.hm-banner-orbit{display:flex;}}
+.dark .hm-home{background:hsl(var(--background));color:hsl(var(--foreground));}.dark .hm-search-wrap,.dark .hm-category-card{background:hsl(var(--card));border-color:hsl(var(--border));}.dark .hm-search-wrap p,.dark .hm-category-card span:nth-child(2){color:hsl(var(--foreground));}.dark .hm-field{background:hsl(var(--background));border-color:hsl(var(--border));}.dark .hm-field input,.dark .hm-field select{color:hsl(var(--foreground));}.dark .hm-assurance-strip,.dark .hm-destinations{background:hsl(var(--background));border-color:hsl(var(--border));}.dark .hm-assurance-strip b,.dark .hm-category-card span:nth-child(2){color:hsl(var(--foreground));}.dark .hm-city-card{color:#fff;}

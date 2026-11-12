@@ -1,71 +1,26 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle2, SlidersHorizontal, ShieldCheck, Users } from "lucide-react";
 
-const sampleBars = [
-  { label: "Budget", value: 96 },
-  { label: "Sleep schedule", value: 88 },
-  { label: "Cleanliness", value: 92 },
-  { label: "Food habits", value: 74 },
+const steps = [
+  { title: "Set your non-negotiables", body: "Budget, move-in date, preferred area and room type." },
+  { title: "Share your living preferences", body: "Daily routine, cleanliness, guests, food and pets." },
+  { title: "Review matches with context", body: "Compare the preferences that matter before starting a conversation." },
 ];
 
 export default function RoommateSpotlight() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="grid items-center gap-10 rounded-[32px] border border-border bg-card p-6 sm:p-10 lg:grid-cols-2 lg:p-14">
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Roommate matching</p>
-          <h2 className="mt-3 text-balance text-[26px] font-semibold leading-tight tracking-[-0.02em] sm:text-[34px]">
-            Compatibility you can read, not a mystery score.
-          </h2>
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-            Answer a short lifestyle questionnaire. We apply hard filters first — smoking, pets, budget, move-in
-            window — then score the rest on weightings you can see, with the reasons behind every match.
-          </p>
-          <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
-            <li>· Budget 20% · Lifestyle 20% · Location 15%</li>
-            <li>· Mutual acceptance before anyone can message</li>
-            <li>· Contact details stay private until you both agree</li>
-          </ul>
-          <Link
-            to="/roommates"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-          >
-            Build my roommate profile <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        <div className="rounded-[26px] border border-border bg-background p-5 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-sm font-semibold">
-                AR
-              </span>
-              <div>
-                <p className="text-sm font-medium">Aarav, 22</p>
-                <p className="text-[12px] text-muted-foreground">B.Tech · KIET · Non-smoker</p>
-              </div>
-            </div>
-            <span className="rounded-full bg-accent/10 px-3 py-1 text-[12px] font-medium text-accent">91% match</span>
+    <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <div className="hm-roommate-panel">
+        <div className="relative z-10 max-w-xl">
+          <span className="hm-roommate-kicker"><Users className="h-3.5 w-3.5"/> LIVE WITH THE RIGHT FIT</span>
+          <h2 className="mt-4 text-balance text-[28px] font-extrabold leading-tight tracking-tight text-white sm:text-[38px]">A better roommate match starts with the right questions.</h2>
+          <p className="mt-4 max-w-lg text-[13px] leading-6 text-white/70">Tell us how you live. HOMORA helps you compare practical preferences before you decide to connect.</p>
+          <div className="mt-7 grid gap-4 sm:grid-cols-3">
+            {steps.map((step, index) => <div key={step.title} className="rounded-2xl border border-white/15 bg-white/[.07] p-3.5 backdrop-blur-sm"><span className="text-[10px] font-extrabold tracking-widest text-violet-200">0{index + 1}</span><h3 className="mt-2 text-[12px] font-bold text-white">{step.title}</h3><p className="mt-1.5 text-[10px] leading-5 text-white/60">{step.body}</p></div>)}
           </div>
-
-          <div className="mt-6 space-y-3.5">
-            {sampleBars.map((bar) => (
-              <div key={bar.label}>
-                <div className="flex items-center justify-between text-[12px]">
-                  <span className="text-muted-foreground">{bar.label}</span>
-                  <span className="font-medium">{bar.value}%</span>
-                </div>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-secondary">
-                  <div className="h-full rounded-full bg-accent" style={{ width: `${bar.value}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <p className="mt-5 rounded-2xl bg-secondary/70 px-4 py-3 text-[12px] leading-relaxed text-muted-foreground">
-            Shared: early riser · vegetarian kitchen · quiet study hours. Differ: guest frequency.
-          </p>
+          <Link to="/roommates" className="mt-7 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-[12px] font-extrabold text-violet-800 transition hover:bg-violet-50">Explore roommate matching <ArrowRight className="h-4 w-4"/></Link>
         </div>
+        <div className="hm-roommate-art" aria-hidden="true"><div className="hm-roommate-art-photo"/><div className="hm-roommate-float"><ShieldCheck className="h-4 w-4 text-emerald-600"/><span>Preferences first</span><CheckCircle2 className="ml-auto h-4 w-4 text-emerald-600"/></div><div className="hm-roommate-float hm-roommate-float-bottom"><SlidersHorizontal className="h-4 w-4 text-violet-600"/><span>Compare what matters</span></div></div>
       </div>
     </section>
   );

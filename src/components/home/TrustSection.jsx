@@ -37,9 +37,9 @@ export default function TrustSection() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Why Nivas</p>
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">The HOMORA difference</p>
             <h2 className="mt-3 max-w-lg text-balance text-[26px] font-semibold leading-tight tracking-[-0.02em] sm:text-[34px]">
-              Built for the decisions that actually cost you money.
+              Clarity at every step of finding your next home.
             </h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-2">
               {pillars.map(({ icon: Icon, title, body }) => (
@@ -54,7 +54,7 @@ export default function TrustSection() {
 
           <div className="rounded-[26px] border border-border bg-background p-6">
             <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              Example · Girls PG, Noida
+              Illustrative monthly cost breakdown
             </p>
             <div className="mt-4 space-y-3">
               {example.map((row) => (

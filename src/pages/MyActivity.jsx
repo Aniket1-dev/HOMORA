@@ -76,6 +76,14 @@ export default function MyActivity() {
   }, [user?.id, load]);
 
   useEffect(() => {
+    const onSharedChange = (event) => {
+      if (["roommate_profiles", "roommate_connections", "properties"].includes(event.detail?.table)) load();
+    };
+    window.addEventListener("homora:realtime-change", onSharedChange);
+    return () => window.removeEventListener("homora:realtime-change", onSharedChange);
+  }, [load]);
+
+  useEffect(() => {
     const next = new URLSearchParams(search).get("tab");
     if (next && tabs.some((item) => item.key === next)) setTab(next);
   }, [search]);

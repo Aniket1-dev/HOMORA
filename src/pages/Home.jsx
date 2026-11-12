@@ -89,7 +89,6 @@ export default function Home() {
           <div className="hm-banner-orbit"><div><span>H</span><small>HOMORA</small></div></div>
         </div>
       </section>
-    </div>
       {showWelcome && (
         <div className="hm-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeWelcome(); }}>
           <section className="hm-welcome-modal" role="dialog" aria-modal="true" aria-labelledby="hm-welcome-title">
@@ -109,5 +108,6 @@ export default function Home() {
           </section>
         </div>
       )}
+    </div>
   );
 }

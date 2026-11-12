@@ -1,1 +1,7 @@
 project_id = "aqljtajusjnhubcafbwr"
+
+[functions.admin-api]
+verify_jwt = true
+
+[functions.partner-team]
+verify_jwt = true

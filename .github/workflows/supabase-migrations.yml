@@ -1,17 +1,19 @@
-name: HOMORA Supabase migrations
+name: HOMORA Supabase backend deployment
 
 on:
   push:
     branches: [supabase]
     paths:
       - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'supabase/config.toml'
 
 concurrency:
-  group: homora-supabase-production-migrations
+  group: homora-supabase-production-backend
   cancel-in-progress: false
 
 jobs:
-  deploy-migrations:
+  deploy-backend:
     # Enable only after SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD and
     # SUPABASE_PROJECT_REF are configured in GitHub Actions secrets.
     if: ${{ vars.HOMORA_SUPABASE_MIGRATIONS_ENABLED == 'true' }}
@@ -27,8 +29,15 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
           SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
-      - name: Apply committed migrations
+      - name: Apply committed database migrations
         run: supabase db push --linked --yes
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      - name: Deploy Admin and Partner Edge Functions
+        run: |
+          supabase functions deploy admin-api --project-ref "$SUPABASE_PROJECT_REF"
+          supabase functions deploy partner-team --project-ref "$SUPABASE_PROJECT_REF"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}

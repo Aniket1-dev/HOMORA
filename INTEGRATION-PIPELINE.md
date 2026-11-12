@@ -23,7 +23,7 @@ Booking create/approve/reject/confirm/cancel flows should continue to use `manag
 
 ## Realtime and security
 
-Migration `20261112041642_homora_cross_app_realtime.sql` was applied to the live project and is committed here. It adds missing admin/content/Discover tables to `supabase_realtime` and adds read-only admin policies for event streams previously denied to browser clients. It does not grant browser write permissions. Existing RLS policies remain the row-level authorization boundary.
+Migration `20261112041642_homora_cross_app_realtime.sql` was applied to the live project and is committed here. It adds missing admin/content/Discover tables to `supabase_realtime` and adds read-only admin policies for event streams previously denied to browser clients. The admin predicate lives in the non-exposed `private` schema and only returns a boolean, avoiding public RPC exposure and RLS recursion. It does not grant browser write permissions. Existing RLS policies remain the row-level authorization boundary.
 
 Admin uses the protected Edge Function for reads/writes; Realtime is only an invalidation signal. Partner already subscribes to core shared tables; its invalidation map now includes profile and support-ticket changes. Discover has one schema-level listener that invalidates active queries.
 

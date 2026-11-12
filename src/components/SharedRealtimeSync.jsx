@@ -12,9 +12,10 @@ export default function SharedRealtimeSync() {
   useEffect(() => {
     const channel = supabase
       .channel(`homora-discover-shared-data-${crypto.randomUUID()}`)
-      .on("postgres_changes", { event: "*", schema: "public" }, () => {
-        // Existing Discover pages use several query-key conventions. Refetch only
-        // active queries so every open view reconciles with the source of truth.
+      .on("postgres_changes", { event: "*", schema: "public" }, (payload) => {
+        // Existing pages use a mix of local state and query caches. Broadcast a
+        // small in-tab event so stateful pages can reload the affected record.
+        window.dispatchEvent(new CustomEvent("homora:realtime-change", { detail: payload }));
         queryClient.invalidateQueries({ refetchType: "active" });
       })
       .subscribe((status) => {

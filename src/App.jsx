@@ -8,6 +8,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import DiscoverShell from '@/components/discover/DiscoverShell';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import SharedRealtimeSync from '@/components/SharedRealtimeSync';
 import Home from '@/pages/Home';
 import Discover from '@/pages/Discover';
 import Nearby from '@/pages/Nearby';
@@ -22,12 +23,10 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Mfa from '@/pages/Mfa';
-// Add page imports here
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -36,51 +35,43 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Handle authentication errors
   if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
+    if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
+    if (authError.type === 'auth_required') {
       navigateToLogin();
       return null;
     }
   }
 
-  // Render the main app
   return (
-    <Routes>
-      {/* HOMORA Discover — the customer-facing app */}
-      <Route element={<DiscoverShell />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/discover" element={<Discover />} />
-        <Route path="/nearby" element={<Nearby />} />
-        <Route path="/calculator" element={<Calculator />} />
-        <Route path="/property/:id" element={<PropertyDetail />} />
-        <Route path="/compare" element={<Compare />} />
-        <Route path="/dashboard" element={<MyActivity />} />
-        <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-          <Route path="/account" element={<Account />} />
-          <Route path="/roommates" element={<Roommates />} />
+    <>
+      <SharedRealtimeSync />
+      <Routes>
+        <Route element={<DiscoverShell />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/nearby" element={<Nearby />} />
+          <Route path="/calculator" element={<Calculator />} />
+          <Route path="/property/:id" element={<PropertyDetail />} />
+          <Route path="/compare" element={<Compare />} />
+          <Route path="/dashboard" element={<MyActivity />} />
+          <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+            <Route path="/account" element={<Account />} />
+            <Route path="/roommates" element={<Roommates />} />
+          </Route>
         </Route>
-      </Route>
-
-      {/* Partner and Admin are separate applications and are not routed from Discover. */}
-
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/mfa" element={<Mfa />} />
-
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/mfa" element={<Mfa />} />
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </>
   );
 };
 
-
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
